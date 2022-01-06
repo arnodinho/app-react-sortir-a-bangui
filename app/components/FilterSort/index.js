@@ -121,19 +121,6 @@ export default function FilterSort(props) {
           </Button>
         </View>
       </Modal>
-      <TouchableOpacity
-        style={styles.sortContent}
-        onPress={() => setModalVisible(true)}>
-        <Icon
-          name="sort-amount-up"
-          size={16}
-          color={BaseColor.grayColor}
-          solid
-        />
-        <Text headline grayColor style={styles.marginLeft5}>
-          {t(sortSelected?.langKey ?? 'sort')}
-        </Text>
-      </TouchableOpacity>
       <View style={styles.modeViewContent}>
         <TouchableOpacity onPress={onChangeView} style={styles.contentModeView}>
           <Icon
@@ -142,13 +129,6 @@ export default function FilterSort(props) {
             color={BaseColor.grayColor}
             solid
           />
-        </TouchableOpacity>
-        <View style={styles.line} />
-        <TouchableOpacity onPress={onFilter} style={styles.contentFilter}>
-          <Icon name="filter" size={16} color={BaseColor.grayColor} solid />
-          <Text headline grayColor style={styles.marginLeft5}>
-            {t('filter')}
-          </Text>
         </TouchableOpacity>
       </View>
     </View>
