@@ -26,7 +26,8 @@ import SignIn from '@screens/SignIn';
 import SignUp from '@screens/SignUp';
 import ResetPassword from '@screens/ResetPassword';
 import ProductDetail from '@screens/ProductDetail';
-
+import ContactUs from '@screens/ContactUs';
+import AboutUs from '@screens/AboutUs';
 const RootStack = createStackNavigator();
 
 export default function Navigator() {
@@ -86,6 +87,8 @@ export default function Navigator() {
         <RootStack.Screen name="SearchHistory" component={SearchHistory} />
         <RootStack.Screen name="ProductDetail" component={ProductDetail} />
         <RootStack.Screen name="PreviewImage" component={PreviewImage} />
+        <RootStack.Screen name="ContactUs" component={ContactUs} />
+        <RootStack.Screen name="AboutUs" component={AboutUs} />
         <RootStack.Screen
           name="SelectDarkOption"
           component={SelectDarkOption}

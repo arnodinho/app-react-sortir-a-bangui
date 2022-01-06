@@ -10,4 +10,6 @@ export const Images = {
   trip2: require('@assets/images/trip-2.jpg'),
   trip3: require('@assets/images/trip-3.jpg'),
   trip4: require('@assets/images/trip-4.jpg'),
+  profile3: require('@assets/images/profile-3.jpg'),
+  profile4: require('@assets/images/profile-4.jpg'),
 };

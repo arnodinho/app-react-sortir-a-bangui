@@ -90,9 +90,9 @@ export default function Profile({navigation}) {
               {borderBottomColor: colors.border, borderBottomWidth: 1},
             ]}
             onPress={() => {
-              navigation.navigate('Setting');
+              navigation.navigate('AboutUs');
             }}>
-            <Text body1>Nous contacter</Text>
+            <Text body1>A propos de nous</Text>
             <Icon
               name="angle-right"
               size={18}
@@ -104,9 +104,9 @@ export default function Profile({navigation}) {
           <TouchableOpacity
             style={styles.profileItem}
             onPress={() => {
-              navigation.navigate('Setting');
+              navigation.navigate('ContactUs');
             }}>
-            <Text body1>A propos</Text>
+            <Text body1>Nous contacter</Text>
             <Icon
               name="angle-right"
               size={18}
