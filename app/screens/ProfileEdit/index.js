@@ -144,7 +144,7 @@ export default function ProfileEdit({navigation}) {
           </View>
           <TextInput
             onChangeText={text => setWebsite(text)}
-            placeholder={t('input_email')}
+            placeholder={t('email')}
             value={website}
             success={success.website}
             onFocus={() => {

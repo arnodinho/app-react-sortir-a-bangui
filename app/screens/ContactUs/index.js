@@ -110,7 +110,7 @@ export default function ContactUs({navigation}) {
               value={message}
             />
           </ScrollView>
-          <View style={{paddingVertical: 15, paddingHorizontal: 20, marginBottom: 30}}>
+          <View style={{paddingVertical: 15, paddingHorizontal: 20, marginBottom: 50}}>
             <Button
               loading={loading}
               full

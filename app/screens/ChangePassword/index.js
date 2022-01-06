@@ -37,7 +37,7 @@ export default function ChangePassword({navigation}) {
       if (password != repassword) {
         Alert.alert({
           title: t('change_password'),
-          message: t('confirm_password_not_corrent'),
+          message: t('confirm_password_not_correct'),
         });
       }
       setSuccess({
