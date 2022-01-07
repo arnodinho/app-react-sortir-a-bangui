@@ -89,7 +89,6 @@ export default function AboutUs({navigation}) {
                   subName={item.subName}
                   description={item.description}
                   style={{marginBottom: 10}}
-                  onPress={() => navigation.navigate(item.screen)}
                 />
               );
             })}

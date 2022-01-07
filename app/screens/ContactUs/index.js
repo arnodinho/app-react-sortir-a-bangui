@@ -53,7 +53,7 @@ export default function ContactUs({navigation}) {
   };
 
   return (
-    <View style={{flex: 1}}>
+    <SafeAreaView style={BaseStyle.safeAreaView} edges={['right', 'left']}>
       <Header
         title={t('contact_us')}
         renderLeft={() => {
@@ -70,58 +70,56 @@ export default function ContactUs({navigation}) {
           navigation.goBack();
         }}
       />
-      <SafeAreaView style={BaseStyle.safeAreaView} edges={['right', 'left']}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'android' ? 'height' : 'padding'}
-          keyboardVerticalOffset={offsetKeyboard}
-          style={{flex: 1}}>
-          <ScrollView
-            contentContainerStyle={{
-              paddingHorizontal: 20,
-              paddingVertical: 15,
-            }}>
-            <View style={{height: 100, width: '100%'}}>
-              <Text headline style={{marginVertical: 10}}>
-              Vous avez des remarques, suggestions à nous faire ?
-              Ecrivez-nous !
-            </Text>
-            </View>
-            <TextInput
-              onChangeText={text => setName(text)}
-              placeholder={t('name')}
-              success={success.name}
-              value={name}
-            />
-            <TextInput
-              style={{marginTop: 10}}
-              onChangeText={text => setEmail(text)}
-              placeholder={t('email')}
-              keyboardType="email-address"
-              success={success.email}
-              value={email}
-            />
-            <TextInput
-              style={{marginTop: 10, height: 150}}
-              onChangeText={text => setMessage(text)}
-              textAlignVertical="top"
-              multiline={true}
-              placeholder={t('message')}
-              success={success.message}
-              value={message}
-            />
-          </ScrollView>
-          <View style={{paddingVertical: 15, paddingHorizontal: 20, marginBottom: 50}}>
-            <Button
-              loading={loading}
-              full
-              onPress={() => {
-                onSubmit();
-              }}>
-              {t('send')}
-            </Button>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'android' ? 'height' : 'padding'}
+        keyboardVerticalOffset={offsetKeyboard}
+        style={{flex: 1}}>
+        <ScrollView
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingVertical: 15,
+          }}>
+          <View style={{height: 100, width: '100%'}}>
+            <Text headline style={{marginVertical: 10}}>
+            Vous avez des remarques, suggestions à nous faire ?
+            Ecrivez-nous !
+          </Text>
           </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </View>
+          <TextInput
+            onChangeText={text => setName(text)}
+            placeholder={t('name')}
+            success={success.name}
+            value={name}
+          />
+          <TextInput
+            style={{marginTop: 10}}
+            onChangeText={text => setEmail(text)}
+            placeholder={t('email')}
+            keyboardType="email-address"
+            success={success.email}
+            value={email}
+          />
+          <TextInput
+            style={{marginTop: 10, height: 150}}
+            onChangeText={text => setMessage(text)}
+            textAlignVertical="top"
+            multiline={true}
+            placeholder={t('message')}
+            success={success.message}
+            value={message}
+          />
+        </ScrollView>
+        <View style={{paddingVertical: 15, paddingHorizontal: 20}}>
+          <Button
+            loading={loading}
+            full
+            onPress={() => {
+              onSubmit();
+            }}>
+            {t('send')}
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
