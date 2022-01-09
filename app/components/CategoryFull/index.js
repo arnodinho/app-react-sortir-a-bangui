@@ -24,7 +24,7 @@ export default function CategoryFull(props) {
       style={[styles.contain, style]}
       onPress={onPress}
       activeOpacity={0.9}>
-      <Image source={{uri: image}} style={styles.image} blurRadius={90} />
+      <Image source={{uri: image}} style={styles.image} />
       <View style={styles.contentIcon}>
         <View style={[styles.iconCircle, {backgroundColor: color}]}>
           <Icon name={icon} size={18} color={BaseColor.whiteColor} />
