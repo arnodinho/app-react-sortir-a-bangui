@@ -214,6 +214,53 @@ export default function ProductDetail({navigation, route}) {
       </TouchableOpacity>
     );
   };
+  const renderOpenHours = () => {
+    return (
+      <View>
+        <TouchableOpacity style={styles.line} onPress={onCollapse}>
+          <View
+            style={[styles.contentIcon, {backgroundColor: colors.border}]}>
+            <Icon name="clock" size={16} color={BaseColor.whiteColor} />
+          </View>
+          <View style={styles.contentInforAction}>
+            <View>
+              <Text caption2 grayColor>
+                {t('open_hour')}
+              </Text>
+            </View>
+            <Icon
+              name={collapseHour ? 'angle-up' : 'angle-down'}
+              size={24}
+              color={BaseColor.grayColor}
+            />
+          </View>
+        </TouchableOpacity>
+      <View
+        style={{
+          paddingLeft: 40,
+          paddingRight: 20,
+          marginTop: 5,
+          height: collapseHour ? 0 : null,
+          overflow: 'hidden',
+        }}>
+          {product?.openTime?.map?.(item => {
+          return (
+            <View
+              style={[styles.lineWorkHours, {borderColor: colors.border}]}
+              key={item.label}>
+              <Text body2 grayColor>
+                {t(item.label)}
+              </Text>
+              <Text body2 accentColor semibold>
+                {`${item.start} - ${item.end}`}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+      </View>
+    );
+  };
   /**
    * render Banner
    * @returns
@@ -476,48 +523,7 @@ export default function ProductDetail({navigation, route}) {
               </Text>
             </View>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.line} onPress={onCollapse}>
-            <View
-              style={[styles.contentIcon, {backgroundColor: colors.border}]}>
-              <Icon name="clock" size={16} color={BaseColor.whiteColor} />
-            </View>
-            <View style={styles.contentInforAction}>
-              <View>
-                <Text caption2 grayColor>
-                  {t('open_hour')}
-                </Text>
-              </View>
-              <Icon
-                name={collapseHour ? 'angle-up' : 'angle-down'}
-                size={24}
-                color={BaseColor.grayColor}
-              />
-            </View>
-          </TouchableOpacity>
-          <View
-            style={{
-              paddingLeft: 40,
-              paddingRight: 20,
-              marginTop: 5,
-              height: collapseHour ? 0 : null,
-              overflow: 'hidden',
-            }}>
-            {product?.openTime?.map?.(item => {
-              return (
-                <View
-                  style={[styles.lineWorkHours, {borderColor: colors.border}]}
-                  key={item.label}>
-                  <Text body2 grayColor>
-                    {t(item.label)}
-                  </Text>
-                  <Text body2 accentColor semibold>
-                    {`${item.start} - ${item.end}`}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
+           {renderOpenHours()}
         </View>
         <Text
           title3
