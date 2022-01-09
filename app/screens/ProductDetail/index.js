@@ -461,7 +461,7 @@ export default function ProductDetail({navigation, route}) {
           <TouchableOpacity
             style={styles.line}
             onPress={() => {
-              onOpen('envelope', t('envelope'), product?.email);
+              onOpen('email', t('envelope'), product?.email);
             }}>
             <View
               style={[styles.contentIcon, {backgroundColor: colors.border}]}>
@@ -469,31 +469,14 @@ export default function ProductDetail({navigation, route}) {
             </View>
             <View style={{marginLeft: 10}}>
               <Text caption2 grayColor>
-                {t('email')}
+                {t('mailto')}
               </Text>
               <Text footnote semibold style={{marginTop: 5}}>
                 {product?.email}
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.line}
-            onPress={() => {
-              onOpen('web', t('website'), product?.website);
-            }}>
-            <View
-              style={[styles.contentIcon, {backgroundColor: colors.border}]}>
-              <Icon name="globe" size={16} color={BaseColor.whiteColor} />
-            </View>
-            <View style={{marginLeft: 10}}>
-              <Text caption2 grayColor>
-                {t('website')}
-              </Text>
-              <Text footnote semibold style={{marginTop: 5}}>
-                {product?.website}
-              </Text>
-            </View>
-          </TouchableOpacity>
+
           <TouchableOpacity style={styles.line} onPress={onCollapse}>
             <View
               style={[styles.contentIcon, {backgroundColor: colors.border}]}>
@@ -591,8 +574,8 @@ export default function ProductDetail({navigation, route}) {
               <Text caption1 grayColor>
                 {t('price_range')}
               </Text>
-              <Text headline style={{marginTop: 5}}>
-                {`${product?.priceMin ?? '-'}$ - ${product?.priceMax ?? '-'}$`}
+              <Text headline style={{marginTop: 5, fontSize:15}}>
+                {`${product?.priceMin ?? '-'}XAF - ${product?.priceMax ?? '-'}XAF`}
               </Text>
             </View>
           </View>

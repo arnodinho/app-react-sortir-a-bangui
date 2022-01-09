@@ -65,14 +65,16 @@ export default function AboutUs({navigation}) {
               {t('who_we_are').toUpperCase()}
             </Text>
             <Text body2 style={{marginTop: 5}}>
-              The song's lyrics allude to District 12, a region of the fictional
-              country of Panem in The Hunger Games universe, subject to the
-              nation's mining industry, and recounts the feelings of the rebels
-              in District 12 at the onset of the rebellion towards the end of
-              Catching Fire. In addition, the song makes several apparent
-              references to The Hunger Games, especially the events of Catching
-              Fire, including the attic where the protagonists of the novel meet
-              during the rebellion of District 11 and "the view from up here"
+
+              Cette appication est dédiée à la promotion de la ville de Bangui.
+              Une ville où il fait bon vivre. 
+              Vous y trouverez tous les endroits  qu'il vous 
+              faut pour sortir prendre un verre avec des ami(e)s, aller faire du sport,
+               son shopping, trouver un bon restaurant, les lieux culturels dans la ville, 
+               et même des endroits dont vous ne soupçonnez même pas l'existence.
+               
+               Bref tous ce que regorge Bangui la coquette est à portée de vos doigts
+
             </Text>
           </View>
 

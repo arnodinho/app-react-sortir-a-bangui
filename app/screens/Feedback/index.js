@@ -14,6 +14,7 @@ import {
   Icon,
   Text,
   StarRating,
+  Button,
   TextInput,
 } from '@components';
 import {useTranslation} from 'react-i18next';
@@ -79,21 +80,8 @@ export default function Feedback({navigation, route}) {
             />
           );
         }}
-        renderRight={() => {
-          if (loading) {
-            return <ActivityIndicator size="small" color={colors.primary} />;
-          }
-          return (
-            <Text headline primaryColor numberOfLines={1}>
-              {t('save')}
-            </Text>
-          );
-        }}
         onPressLeft={() => {
           navigation.goBack();
-        }}
-        onPressRight={() => {
-          onSubmit();
         }}
       />
       <KeyboardAvoidingView
@@ -134,6 +122,11 @@ export default function Feedback({navigation, route}) {
             value={review}
           />
         </ScrollView>
+        <View style={{paddingVertical: 15, paddingHorizontal: 20}}>
+          <Button loading={loading} full onPress={() => {onSubmit();}}>
+            {t('feedback')}
+          </Button>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

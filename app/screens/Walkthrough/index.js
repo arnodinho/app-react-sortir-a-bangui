@@ -8,10 +8,10 @@ import {useTranslation} from 'react-i18next';
 
 export default function Walkthrough({navigation}) {
   const [slide] = useState([
-    {key: 1, image: Images.trip2},
-    {key: 2, image: Images.trip1},
     {key: 3, image: Images.trip3},
     {key: 4, image: Images.trip4},
+    {key: 1, image: Images.trip2},
+    {key: 2, image: Images.trip1},
   ]);
   const {colors} = useTheme();
   const {t} = useTranslation();

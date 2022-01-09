@@ -38,7 +38,7 @@
     "email":"website",
     "input_email":"E-mail",
     "message":"Message",
-    "feedback":"Retour d&#39;information",
+    "feedback":"Ajouter un commentaire",
     "tap_to_rate":"Appuyez sur une étoile pour noter",
     "input_title":"Titre d&#39;entrée",
     "input_information": "information complémentaire",
@@ -98,7 +98,7 @@
     "views":"Vues",
     "featured":"En vedette",
     "open_hour":"Heures d'ouverture",
-    "date_established":"Date établie",
+    "date_established":"Date d'établissement",
     "price_range":"Échelle des prix",
     "related":"en relation",
     "items":"Articles",
@@ -128,8 +128,12 @@
     "not_have_account":"Vous n'êtes pas encore inscrit?",
     "join_now":"Adhérer maintenant",
     "home":"Accueil",
-    "wishlist":"Liste de souhaits",
+    "wishlist": "Mes favoris",
     "reminders":"Rappels",
     "default":"Défaut",
-    "update_success":"Mise à jour effectuée"
+    "update_success":"Mise à jour effectuée",
+    "write": "Ajouter un commentaire",
+    "incorrect": "Mot de passe incorrect",
+    "mailto": "E-mail",
+    "envelope": "Courrier"
  }

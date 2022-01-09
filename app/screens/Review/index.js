@@ -8,6 +8,7 @@ import {
   Text,
   RateDetail,
   CommentItem,
+  Button
 } from '@components';
 import styles from './styles';
 import {useTranslation} from 'react-i18next';
@@ -54,6 +55,16 @@ export default function Review({navigation, route}) {
   const onRefresh = () => {
     setRefreshing(true);
     loadData();
+  };
+
+  const onComment = () => {
+    params = {
+      ...route.params,
+      reload: () => {
+        loadData(true);
+      },
+    };
+    navigation.navigate({name: 'Feedback', params});
   };
 
   /**
@@ -118,27 +129,21 @@ export default function Review({navigation, route}) {
             />
           );
         }}
-        renderRight={() => {
-          return (
-            <Text headline primaryColor numberOfLines={1}>
-              {t('write')}
-            </Text>
-          );
-        }}
         onPressLeft={() => {
           navigation.goBack();
         }}
-        onPressRight={() => {
-          const params = {
-            ...route.params,
-            reload: () => {
-              loadData(true);
-            },
-          };
-          navigation.navigate({name: 'Feedback', params});
-        }}
       />
       {renderContent()}
+      <View style={{paddingVertical: 15, paddingHorizontal: 20, marginBottom: 20}}>
+          <Button
+            loading={loading}
+            full
+            onPress={() => {
+              onComment();
+            }}>
+             {t('write')}
+          </Button>
+        </View>
     </SafeAreaView>
   );
 }
