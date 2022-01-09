@@ -460,6 +460,19 @@ export default function ProductDetail({navigation, route}) {
             </View>
             <Tag status>{product?.status}</Tag>
           </View>
+          <View
+            style={[
+              styles.line,
+              {
+                borderColor: colors.border,
+                borderBottomWidth: 1,
+                paddingBottom: 20,
+              },
+            ]}>
+            <Text body2 style={{lineHeight: 20}}>
+              {product?.description}
+            </Text>
+          </View>
           <TouchableOpacity
             style={styles.line}
             onPress={() => {
@@ -560,9 +573,6 @@ export default function ProductDetail({navigation, route}) {
           })}
         </View>
         <View style={[styles.contentDescription, {borderColor: colors.border}]}>
-          <Text body2 style={{lineHeight: 20}}>
-            {product?.description}
-          </Text>
           <View
             style={{
               paddingVertical: 20,

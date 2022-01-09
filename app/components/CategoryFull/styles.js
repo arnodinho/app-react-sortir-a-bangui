@@ -21,6 +21,6 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   placeholderContent: {width: '100%', height: '100%', borderRadius: 8},
-  image: {flex: 1, borderRadius: 8},
+  image: {flex: 1, borderRadius: 8, opacity: 0.5},
   contentTitle: {paddingLeft: 10},
 });

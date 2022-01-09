@@ -151,7 +151,7 @@ export default function Category({navigation}) {
               navigation.navigate('List', {filter});
             }}
             style={{
-              marginBottom: 15,
+              marginBottom: 15
             }}
           />
         );
