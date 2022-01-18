@@ -79,7 +79,7 @@ export default function Home({navigation}) {
    */
   const renderCategory = () => {
     let categories = home.categories;
-    let enableMore = categories?.length > 7;
+    let enableMore = categories?.length > 8;
     if (enableMore) {
       categories = home.categories.slice(0, 7);
     }
@@ -337,7 +337,7 @@ export default function Home({navigation}) {
               </View>
             </TouchableOpacity>
           </View>
-          {renderCategory()}          
+          {renderCategory()}
           <View
             style={{
               paddingHorizontal: 20,

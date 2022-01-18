@@ -27,7 +27,7 @@ function* loadReview(action) {
       action.callback?.({list, rating});
     }
   } catch (error) {
-    console.log('fetchReview', error);
+   // console.log('fetchReview', error);
     action.callback?.(error.response ?? error.message);
   }
 }
@@ -41,7 +41,7 @@ function* saveComment(action) {
     const response = yield api.saveReview(form);
     action.callback?.(response);
   } catch (error) {
-    console.log('saveComment', error);
+    //console.log('saveComment', error);
     action.callback?.(error.response ?? error.message);
   }
 }
@@ -56,7 +56,7 @@ function* loadCategory(action) {
       action.callback?.(list);
     }
   } catch (error) {
-    console.log('getCategory', error);
+   // console.log('getCategory', error);
     action.callback?.(error.response ?? error.message);
   }
 }

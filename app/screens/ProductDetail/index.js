@@ -215,51 +215,104 @@ export default function ProductDetail({navigation, route}) {
     );
   };
   const renderOpenHours = () => {
-    return (
-      <View>
-        <TouchableOpacity style={styles.line} onPress={onCollapse}>
-          <View
-            style={[styles.contentIcon, {backgroundColor: colors.border}]}>
-            <Icon name="clock" size={16} color={BaseColor.whiteColor} />
-          </View>
-          <View style={styles.contentInforAction}>
-            <View>
-              <Text caption2 grayColor>
-                {t('open_hour')}
-              </Text>
+    if (
+      product?.category?.title === 'Bar' ||
+      product?.category?.title === 'Restaurant'
+    ) {
+      return (
+        <View>
+          <TouchableOpacity style={styles.line} onPress={onCollapse}>
+            <View
+              style={[styles.contentIcon, {backgroundColor: colors.border}]}>
+              <Icon name="clock" size={16} color={BaseColor.whiteColor} />
             </View>
-            <Icon
-              name={collapseHour ? 'angle-up' : 'angle-down'}
-              size={24}
-              color={BaseColor.grayColor}
-            />
+            <View style={styles.contentInforAction}>
+              <View>
+                <Text caption2 grayColor>
+                  {t('open_hour')}
+                </Text>
+              </View>
+              <Icon
+                name={collapseHour ? 'angle-up' : 'angle-down'}
+                size={24}
+                color={BaseColor.grayColor}
+              />
+            </View>
+          </TouchableOpacity>
+          <View
+            style={{
+              paddingLeft: 40,
+              paddingRight: 20,
+              marginTop: 5,
+              height: collapseHour ? 0 : null,
+              overflow: 'hidden',
+            }}>
+            {product?.openTime?.map?.(item => {
+              return (
+                <View
+                  style={[styles.lineWorkHours, {borderColor: colors.border}]}
+                  key={item.label}>
+                  <Text body2 grayColor>
+                    {t(item.label)}
+                  </Text>
+                  <Text body2 accentColor semibold>
+                    {`${item.start} - ${item.end}`}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      );
+    }
+  };
+
+  const renderEmail = () => {
+    if (product?.email) {
+      return (
+        <TouchableOpacity
+          style={styles.line}
+          onPress={() => {
+            onOpen('email', t('envelope'), product?.email);
+          }}>
+          <View style={[styles.contentIcon, {backgroundColor: colors.border}]}>
+            <Icon name="envelope" size={16} color={BaseColor.whiteColor} />
+          </View>
+          <View style={{marginLeft: 10}}>
+            <Text caption2 grayColor>
+              {t('mailto')}
+            </Text>
+            <Text footnote semibold style={{marginTop: 5}}>
+              {product?.email}
+            </Text>
           </View>
         </TouchableOpacity>
-      <View
-        style={{
-          paddingLeft: 40,
-          paddingRight: 20,
-          marginTop: 5,
-          height: collapseHour ? 0 : null,
-          overflow: 'hidden',
-        }}>
-          {product?.openTime?.map?.(item => {
-          return (
-            <View
-              style={[styles.lineWorkHours, {borderColor: colors.border}]}
-              key={item.label}>
-              <Text body2 grayColor>
-                {t(item.label)}
-              </Text>
-              <Text body2 accentColor semibold>
-                {`${item.start} - ${item.end}`}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
-      </View>
-    );
+      );
+    }
+  };
+
+  const renderWebsite = () => {
+    if (product?.website) {
+      return (
+        <TouchableOpacity
+          style={styles.line}
+          onPress={() => {
+            onOpen('web', t('website'), product?.website);
+          }}>
+          <View style={[styles.contentIcon, {backgroundColor: colors.border}]}>
+            <Icon name="globe" size={16} color={BaseColor.whiteColor} />
+          </View>
+          <View style={{marginLeft: 10}}>
+            <Text caption2 grayColor>
+              {t('website')}
+            </Text>
+            <Text footnote semibold style={{marginTop: 5}}>
+              {product?.website}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      );
+    }
   };
   /**
    * render Banner
@@ -473,16 +526,7 @@ export default function ProductDetail({navigation, route}) {
               {product?.description}
             </Text>
           </View>
-          <TouchableOpacity
-            style={styles.line}
-            onPress={() => {
-              const location = `${product?.location?.latitude},${product?.location?.longitude}`;
-              const url = Platform.select({
-                ios: `maps:${location}`,
-                android: `geo:${location}?center=${location}&q=${location}&z=16`,
-              });
-              onOpen('address', t('address'), url);
-            }}>
+          <TouchableOpacity style={styles.line}>
             <View
               style={[styles.contentIcon, {backgroundColor: colors.border}]}>
               <Icon
@@ -518,25 +562,9 @@ export default function ProductDetail({navigation, route}) {
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.line}
-            onPress={() => {
-              onOpen('email', t('envelope'), product?.email);
-            }}>
-            <View
-              style={[styles.contentIcon, {backgroundColor: colors.border}]}>
-              <Icon name="envelope" size={16} color={BaseColor.whiteColor} />
-            </View>
-            <View style={{marginLeft: 10}}>
-              <Text caption2 grayColor>
-                {t('mailto')}
-              </Text>
-              <Text footnote semibold style={{marginTop: 5}}>
-                {product?.email}
-              </Text>
-            </View>
-          </TouchableOpacity>
-           {renderOpenHours()}
+          {renderEmail()}
+          {renderWebsite()}
+          {renderOpenHours()}
         </View>
         <Text
           title3
@@ -590,8 +618,10 @@ export default function ProductDetail({navigation, route}) {
               <Text caption1 grayColor>
                 {t('price_range')}
               </Text>
-              <Text headline style={{marginTop: 5, fontSize:15}}>
-                {`${product?.priceMin ?? '-'}XAF - ${product?.priceMax ?? '-'}XAF`}
+              <Text headline style={{marginTop: 5, fontSize: 15}}>
+                {`${product?.priceMin ?? '-'}XAF - ${
+                  product?.priceMax ?? '-'
+                }XAF`}
               </Text>
             </View>
           </View>
@@ -606,8 +636,8 @@ export default function ProductDetail({navigation, route}) {
               region={{
                 latitude: parseFloat(product?.location?.latitude ?? 0.0),
                 longitude: parseFloat(product?.location?.longitude ?? 0.0),
-                latitudeDelta: 0.009,
-                longitudeDelta: 0.004,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.009,
               }}>
               <Marker
                 coordinate={{

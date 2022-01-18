@@ -506,6 +506,7 @@ export default function List({navigation, route}) {
       outputRange: [0, -40],
       extrapolate: 'clamp',
     });
+ //   showsVerticalScrollIndicator={false}   hide scrollbar
     switch (modeView) {
       case 'block':
         return (
