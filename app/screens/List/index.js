@@ -971,6 +971,15 @@ export default function List({navigation, route}) {
         onPressLeft={() => {
           navigation.goBack();
         }}
+        renderRight={() => {
+          return (
+            <Icon
+              name={mapView ? 'align-right' : 'map'}
+              size={20}
+              color={colors.primary}
+            />
+          );
+        }}
         renderRightSecond={() => {
           return <Icon name="search" size={20} color={colors.primary} />;
         }}
