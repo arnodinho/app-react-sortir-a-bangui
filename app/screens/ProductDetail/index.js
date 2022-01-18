@@ -207,9 +207,9 @@ export default function ProductDetail({navigation, route}) {
     return (
       <TouchableOpacity onPress={() => onLike(!like)}>
         {like ? (
-          <Icon name="heart" color={colors.primaryLight} solid size={18} />
+          <Icon name="heart" color={colors.primaryLight} solid size={25} />
         ) : (
-          <Icon name="heart" color={colors.primaryLight} size={18} />
+          <Icon name="heart" color={colors.primaryLight} size={25} />
         )}
       </TouchableOpacity>
     );
