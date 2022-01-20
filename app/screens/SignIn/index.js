@@ -122,13 +122,14 @@ export default function SignIn({navigation, route}) {
               {t('forgot_your_password')}
             </Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity style={{marginTop: 20}} onPress={() => navigation.navigate('SignUp')}>
+
+          <TouchableOpacity
+            style={{marginTop: 20}}
+            onPress={() => navigation.navigate('SignUp')}>
             <Text body1 grayColor>
               {t('not_have_account')}
             </Text>
           </TouchableOpacity>
-          
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

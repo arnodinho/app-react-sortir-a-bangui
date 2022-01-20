@@ -4,7 +4,7 @@
  */
 
 export const Images = {
-  logo: require('@assets/images/logo.png'),
+  logo: require('@assets/images/icon.png'),
   slide: require('@assets/images/slide.png'),
   trip1: require('@assets/images/trip-1.jpg'),
   trip2: require('@assets/images/trip-2.jpg'),

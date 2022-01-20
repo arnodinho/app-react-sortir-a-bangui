@@ -3,7 +3,7 @@
  */
 export const BaseSetting = {
   name: 'listar',
-  displayName: 'Listar',
+  displayName: 'Sortir à bangui',
   appVersion: '1.0.3',
   domain: 'ws.bantu-dico.com',
   protocol: 'http',
