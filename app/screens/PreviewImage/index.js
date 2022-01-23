@@ -87,9 +87,6 @@ export default function PreviewImage({navigation, route}) {
         }}>
         <View style={styles.lineText}>
           <Text body2 whiteColor>
-            Standard Double Room
-          </Text>
-          <Text body2 whiteColor>
             {indexSelected + 1}/{images.length}
           </Text>
         </View>
