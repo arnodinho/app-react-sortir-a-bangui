@@ -9,3 +9,5 @@
 # Youtube
 
 - https://www.youtube.com/channel/UCt_7rXE3zgj_a_UbGCFUz6Q
+
+watchman watch-del '/Users/arnaudyanga-esso/Projects/listar-pro-wordpress/source' ; watchman watch-project '/Users/arnaudyanga-esso/Projects/listar-pro-wordpress/source'

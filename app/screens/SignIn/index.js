@@ -19,8 +19,8 @@ export default function SignIn({navigation, route}) {
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
-  const [id, setId] = useState();
-  const [password, setPassword] = useState();
+  const [id, setId] = useState('paul');
+  const [password, setPassword] = useState('123');
   const [success, setSuccess] = useState({id: true, password: true});
 
   /**

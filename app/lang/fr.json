@@ -122,7 +122,7 @@
     "app_version":"Version de l'application",
     "sign_in":"Se connecter",
     "forgot_your_password":"Mot de passe oublié?",
-    "sign_up":"S'inscrire",
+    "sign_up":"Inscription",
     "pick_your_destication":"Bangui la coquette",
     "login_facebook":"Se connecter avec Facebook",
     "not_have_account":"Vous n'êtes pas encore inscrit?",
@@ -135,5 +135,6 @@
     "write": "Ajouter un commentaire",
     "incorrect": "Mot de passe incorrect",
     "mailto": "E-mail",
-    "envelope": "Courrier"
+    "envelope": "Courrier",
+    "register_success": "Votre compte a été créé avec succès"
  }
