@@ -14,10 +14,12 @@ export default function ContactUs({navigation}) {
     android: 20,
   });
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState({
+    firstname: true,
+    lastname: true,
     name: true,
     email: true,
     message: true,
@@ -36,14 +38,30 @@ export default function ContactUs({navigation}) {
    * @date 2019-08-03
    */
   const onSubmit = () => {
-    if (name == '' || email == '' || message == '') {
+    if (lastname == '' || firstname == '' || message == '') {
       setSuccess({
         ...success,
-        email: email != '' ? true : false,
-        name: name != '' ? true : false,
+        lastname: lastname != '' ? true : false,
+        firstname: firstname != '' ? true : false,
         message: message != '' ? true : false,
       });
     } else {
+      fetch(
+        'https://sortir-a-bangui-default-rtdb.europe-west1.firebasedatabase.app/contact.json',
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            lastname: lastname,
+            firstname: firstname,
+            message: message,
+          }),
+        },
+      ).then(response => response.json());
+
       setLoading(true);
       setTimeout(() => {
         setLoading(true);
@@ -81,23 +99,21 @@ export default function ContactUs({navigation}) {
           }}>
           <View style={{height: 100, width: '100%'}}>
             <Text headline style={{marginVertical: 10}}>
-            Vous avez des remarques, suggestions à nous faire ?
-            Ecrivez-nous !
-          </Text>
+              Vous avez des remarques, suggestions à nous faire ? Ecrivez-nous !
+            </Text>
           </View>
           <TextInput
-            onChangeText={text => setName(text)}
-            placeholder={t('name')}
-            success={success.name}
-            value={name}
+            onChangeText={text => setLastname(text)}
+            placeholder={t('lastname')}
+            success={success.lastname}
+            value={lastname}
           />
           <TextInput
             style={{marginTop: 10}}
-            onChangeText={text => setEmail(text)}
-            placeholder={t('email')}
-            keyboardType="email-address"
-            success={success.email}
-            value={email}
+            onChangeText={text => setFirstname(text)}
+            placeholder={t('firstname')}
+            success={success.firstname}
+            value={firstname}
           />
           <TextInput
             style={{marginTop: 10, height: 150}}

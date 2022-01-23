@@ -136,5 +136,7 @@
     "incorrect": "Mot de passe incorrect",
     "mailto": "E-mail",
     "envelope": "Courrier",
-    "register_success": "Votre compte a été créé avec succès"
+    "register_success": "Votre compte a été créé avec succès",
+    "firstname": "prénom",
+    "lastname": "Nom"
  }
