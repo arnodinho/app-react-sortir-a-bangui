@@ -688,6 +688,7 @@ export default function List({navigation, route}) {
                   onRefresh={onRefresh}
                 />
               }
+              showsVerticalScrollIndicator={false}
               scrollEventThrottle={1}
               onScroll={Animated.event(
                 [
