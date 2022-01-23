@@ -117,13 +117,6 @@ export default function SignIn({navigation, route}) {
             {t('sign_in')}
           </Button>
           <TouchableOpacity
-            onPress={() => navigation.navigate('ResetPassword')}>
-            <Text body1 grayColor style={{marginTop: 25}}>
-              {t('forgot_your_password')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
             style={{marginTop: 20}}
             onPress={() => navigation.navigate('SignUp')}>
             <Text body1 grayColor>
