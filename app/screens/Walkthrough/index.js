@@ -53,6 +53,14 @@ export default function Walkthrough({navigation}) {
               {t('not_have_account')}
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{marginTop: 20}}
+            onPress={() => navigation.navigate('AboutUs')}>
+            <Text body1 grayColor>
+              {t('A propos de nous')}
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

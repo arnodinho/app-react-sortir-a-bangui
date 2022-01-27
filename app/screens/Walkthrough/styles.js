@@ -17,9 +17,10 @@ export default StyleSheet.create({
     bottom: 0,
   },
   contentActionBottom: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    flex: 1,
   },
   img: {
     width: Utils.scaleWithPixel(200),

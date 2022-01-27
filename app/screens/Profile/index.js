@@ -106,7 +106,7 @@ export default function Profile({navigation}) {
             onPress={() => {
               navigation.navigate('ContactUs');
             }}>
-            <Text body1>Nous contacter</Text>
+            <Text body1>{t('contact_us')} </Text>
             <Icon
               name="angle-right"
               size={18}

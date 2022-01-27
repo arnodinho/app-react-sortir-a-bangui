@@ -16,5 +16,14 @@ export default StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  title: {paddingHorizontal: 20, paddingBottom: 15},
+
+  titleContact: {paddingBottom: 8},
+
+  title: {paddingHorizontal: 20, paddingBottom: 15, paddingTop: 20},
+  profileItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginRight: 30,
+  },
 });
