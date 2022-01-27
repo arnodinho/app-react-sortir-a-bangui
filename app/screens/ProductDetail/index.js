@@ -215,10 +215,7 @@ export default function ProductDetail({navigation, route}) {
     );
   };
   const renderOpenHours = () => {
-    if (
-      product?.category?.title === 'Bar' ||
-      product?.category?.title === 'Restaurant'
-    ) {
+    if (product?.fax) {
       return (
         <View>
           <TouchableOpacity style={styles.line} onPress={onCollapse}>
@@ -263,6 +260,30 @@ export default function ProductDetail({navigation, route}) {
             })}
           </View>
         </View>
+      );
+    }
+  };
+
+  const renderTelephone = () => {
+    if (product?.phone) {
+      return (
+        <TouchableOpacity
+          style={styles.line}
+          onPress={() => {
+            onOpen('phone', t('tel'), product?.phone);
+          }}>
+          <View style={[styles.contentIcon, {backgroundColor: colors.border}]}>
+            <Icon name="mobile-alt" size={16} color={BaseColor.whiteColor} />
+          </View>
+          <View style={{marginLeft: 10}}>
+            <Text caption2 grayColor>
+              {t('tel')}
+            </Text>
+            <Text footnote semibold style={{marginTop: 5}}>
+              {product?.phone}
+            </Text>
+          </View>
+        </TouchableOpacity>
       );
     }
   };
@@ -544,24 +565,7 @@ export default function ProductDetail({navigation, route}) {
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.line}
-            onPress={() => {
-              onOpen('phone', t('tel'), product?.phone);
-            }}>
-            <View
-              style={[styles.contentIcon, {backgroundColor: colors.border}]}>
-              <Icon name="mobile-alt" size={16} color={BaseColor.whiteColor} />
-            </View>
-            <View style={{marginLeft: 10}}>
-              <Text caption2 grayColor>
-                {t('tel')}
-              </Text>
-              <Text footnote semibold style={{marginTop: 5}}>
-                {product?.phone}
-              </Text>
-            </View>
-          </TouchableOpacity>
+          {renderTelephone()}
           {renderEmail()}
           {renderWebsite()}
           {renderOpenHours()}
