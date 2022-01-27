@@ -43,12 +43,8 @@ export default function Loading({navigation}) {
   return (
     <View style={styles.container}>
       <View style={{alignItems: 'center'}}>
-        <Image source={Images.logo} style={styles.logo} resizeMode="contain" />
-        <Text title1 style={{marginTop: 8}}>
+        <Text  style={{marginTop: 8}}>
           {BaseSetting.displayName}
-        </Text>
-        <Text headline primaryColor style={{marginTop: 8, textAlign: 'center'}}>
-          Bons plans de sortie et autres heureuses découvertes
         </Text>
       </View>
       <ActivityIndicator

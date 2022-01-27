@@ -3,7 +3,7 @@
  */
 export const BaseSetting = {
   name: 'listar',
-  displayName: 'Sortir à bangui',
+  displayName: 'Yanga Consulting @ Copyright 2022',
   appVersion: '1.0.3',
   domain: 'ws.bantu-dico.com',
   protocol: 'https',
