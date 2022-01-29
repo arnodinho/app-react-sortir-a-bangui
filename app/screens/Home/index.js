@@ -347,7 +347,7 @@ export default function Home({navigation}) {
               {t('recent_location')}
             </Text>
             <Text body2 grayColor style={{marginBottom: 15}}>
-              Derniers articles mis en ligne
+              {t('recent_location_subtitle')}
             </Text>
             {renderRecent()}
           </View>
