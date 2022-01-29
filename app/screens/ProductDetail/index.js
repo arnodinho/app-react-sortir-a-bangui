@@ -624,6 +624,43 @@ export default function ProductDetail({navigation, route}) {
             </MapView>
           </View>
         </View>
+        <Text
+          title3
+          semibold
+          style={{
+            paddingHorizontal: 20,
+            paddingVertical: 15,
+          }}>
+          {t('featured')}
+        </Text>
+        <FlatList
+          contentContainerStyle={{paddingLeft: 5, paddingRight: 20}}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={product?.related ?? []}
+          keyExtractor={(item, index) => item.id.toString()}
+          renderItem={({item, index}) => (
+            <ListItem
+              grid
+              image={item.image?.full}
+              title={item.title}
+              subtitle={item.category?.title}
+              location={item.address}
+              phone={item.phone}
+              rate={item.rate}
+              status={item.status}
+              rateStatus={item.rateStatus}
+              numReviews={item.numReviews}
+              favorite={item.favorite}
+              onPress={() => onProductDetail(item)}
+              onPressTag={onReview}
+              style={{
+                marginLeft: 15, marginBottom: 15,
+                width: Dimensions.get('window').width / 2,
+              }}
+            />
+          )}
+        />
       </ScrollView>
     );
   };
