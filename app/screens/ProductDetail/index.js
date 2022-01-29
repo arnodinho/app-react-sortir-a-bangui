@@ -379,34 +379,6 @@ export default function ProductDetail({navigation, route}) {
           },
         ]}>
         <Image source={{uri: product?.image?.full}} style={{flex: 1}} />
-        <Animated.View
-          style={{
-            position: 'absolute',
-            bottom: 15,
-            left: 20,
-            flexDirection: 'row',
-            opacity: deltaY.interpolate({
-              inputRange: [
-                0,
-                Utils.scaleWithPixel(140),
-                Utils.scaleWithPixel(140),
-              ],
-              outputRange: [1, 0, 0],
-            }),
-          }}>
-          <Image
-            source={{uri: product?.author?.image}}
-            style={styles.userIcon}
-          />
-          <View>
-            <Text headline semibold whiteColor>
-              {product?.author?.name}
-            </Text>
-            <Text footnote whiteColor>
-              {product?.author?.email}
-            </Text>
-          </View>
-        </Animated.View>
       </Animated.View>
     );
   };
