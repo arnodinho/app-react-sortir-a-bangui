@@ -1,6 +1,12 @@
 import React, {useState} from 'react';
-import {View, TouchableOpacity, ScrollView} from 'react-native';
-import {SafeAreaView, Text, Button, Image} from '@components';
+import {
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Share,
+  Platform,
+} from 'react-native';
+import {SafeAreaView, Text, Button, Image, Icon} from '@components';
 import styles from './styles';
 import Swiper from 'react-native-swiper';
 import {BaseColor, BaseStyle, Images, useTheme} from '@config';
@@ -15,6 +21,10 @@ export default function Walkthrough({navigation}) {
   ]);
   const {colors} = useTheme();
   const {t} = useTranslation();
+  const linked =
+    Platform.OS === 'android'
+      ? 'https://play.google.com/store/apps/details?id=com.ayanga.sortirabangui'
+      : 'https://apps.apple.com/fr/app/sortir-%C3%A0-bangui/id1606544116';
 
   return (
     <SafeAreaView style={BaseStyle.safeAreaView} edges={['right', 'left']}>
@@ -62,6 +72,18 @@ export default function Walkthrough({navigation}) {
             </Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity
+          style={styles.share_touchable_floatingactionbutton}
+          onPress={() =>
+            Share.share({
+              title: 'Bantu-dico',
+              message:
+                'Hello !  Je te recommande cette application de tourisme : Sortirà Bangui ' +
+                linked,
+            })
+          }>
+          <Icon name="share-alt" size={30} color={'white'} />
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

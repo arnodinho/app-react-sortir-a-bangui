@@ -300,13 +300,20 @@ export default function ListItem(props) {
             fullStarColor={BaseColor.yellowColor}
           />
         </View>
-        <Text caption2 grayColor style={{marginTop: 10}} numberOfLines={1}>
-          {location}
-        </Text>
+         {renderLocation()}
       </View>
     );
   };
-
+  
+  const renderLocation = () => {
+    if (location) {
+      return (
+        <Text caption2 grayColor style={{marginTop: 10}} numberOfLines={1}>
+          {location}
+        </Text>
+      );
+    }
+  };
   const renderSmall = () => {
     if (loading) {
       return (

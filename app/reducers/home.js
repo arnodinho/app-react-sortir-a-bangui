@@ -3,6 +3,7 @@ const initialState = {
   sliders: [],
   categories: [],
   locations: [],
+  popular: [],
   recents: [],
 };
 
@@ -14,6 +15,7 @@ export default (state = initialState, action = {}) => {
         sliders: action.sliders ?? [],
         categories: action.categories ?? [],
         locations: action.locations ?? [],
+        popular: action.popular ?? [],
         recents: action.recents ?? [],
       };
     default:

@@ -16,6 +16,9 @@ function* fetchHome(action) {
         locations: response.data?.locations?.map?.(item => {
           return new CategoryModel(item);
         }),
+        popular: response.data?.popular?.map?.(item => {
+          return new ProductModel(item);
+        }),
         recents: response.data?.recent_posts?.map?.(item => {
           return new ProductModel(item);
         }),

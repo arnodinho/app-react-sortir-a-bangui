@@ -31,6 +31,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+    paddingBottom:15,
   },
   serviceItem: {
     alignItems: 'center',
@@ -46,7 +47,7 @@ export default StyleSheet.create({
   },
   contentPopular: {
     marginHorizontal: 20,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   promotionBanner: {
     height: Utils.scaleWithPixel(100),

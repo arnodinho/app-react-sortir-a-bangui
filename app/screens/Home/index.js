@@ -5,6 +5,7 @@ import {
   Animated,
   TouchableOpacity,
   FlatList,
+  Dimensions,
 } from 'react-native';
 import {
   Placeholder,
@@ -177,31 +178,41 @@ export default function Home({navigation}) {
    * @returns
    */
   const renderPopular = () => {
-    if (home.locations?.length > 0) {
+    if (home.popular?.length > 0) {
       return (
         <FlatList
-          contentContainerStyle={{paddingLeft: 5, paddingRight: 15}}
+          contentContainerStyle={{paddingLeft: 5, paddingRight: 20}}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          data={home.locations}
+          data={home.popular ?? []}
           keyExtractor={(item, index) => item.id.toString()}
-          renderItem={({item, index}) => {
-            return (
-              <Card
-                style={[styles.popularItem, {marginLeft: 15}]}
-                image={item.image?.full}
-                onPress={() => {
-                  const filter = new FilterModel();
-                  filter.area = item;
-                  filter.perPage = setting.perPage;
-                  navigation.navigate('List', {filter});
-                }}>
-                <Text headline whiteColor semibold>
-                  {item.title}
-                </Text>
-              </Card>
-            );
-          }}
+          renderItem={({item, index}) => (
+            <ListItem
+              grid
+              image={item.image?.full}
+              title={item.title}
+              subtitle={item.category?.title}
+              phone={item.phone}
+              rate={item.rate}
+              status={item.status}
+              rateStatus={item.rateStatus}
+              numReviews={item.numReviews}
+              favorite={item.favorite}
+              onPress={() => {
+                navigation.navigate('ProductDetail', {
+                  id: item.id,
+                  onLike: favorite => {
+                    item.favorite = favorite;
+                    onUpdate(item);
+                  },
+                });
+              }}
+              style={{
+                marginLeft: 15, marginBottom: 1,
+                width: Dimensions.get('window').width / 2.5,
+              }}
+            />
+          )}
         />
       );
     }
@@ -338,6 +349,12 @@ export default function Home({navigation}) {
             </TouchableOpacity>
           </View>
           {renderCategory()}
+          <View style={styles.contentPopular}>
+            <Text title3 semibold>
+              {t('popular_location')}
+            </Text>
+          </View>
+          {renderPopular()}
           <View
             style={{
               paddingHorizontal: 20,
