@@ -20,7 +20,7 @@ export default class ProductModel {
     this.favorite = json?.wishlist;
     this.address = json?.address;
     this.phone = json?.phone;
-    this.fax = json?.fax;
+    this.is_scheduled = json?.is_scheduled;
     this.email = json?.email;
     this.website = json?.website;
     this.description = json?.post_excerpt;

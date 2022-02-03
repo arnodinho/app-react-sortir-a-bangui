@@ -215,7 +215,7 @@ export default function ProductDetail({navigation, route}) {
     );
   };
   const renderOpenHours = () => {
-    if (product?.fax) {
+    if (product?.is_scheduled === 'oui') {
       return (
         <View>
           <TouchableOpacity style={styles.line} onPress={onCollapse}>
