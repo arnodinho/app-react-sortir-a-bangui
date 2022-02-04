@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   Platform,
+  ImageBackground,
   Dimensions,
 } from 'react-native';
 import {BaseColor, useTheme, BaseStyle} from '@config';
@@ -364,22 +365,43 @@ export default function ProductDetail({navigation, route}) {
     }
 
     return (
-      <Animated.View
-        style={[
-          styles.imgBanner,
-          {
-            height: deltaY.interpolate({
-              inputRange: [
-                0,
-                Utils.scaleWithPixel(140),
-                Utils.scaleWithPixel(140),
-              ],
-              outputRange: [heightImageBanner, heightHeader, heightHeader],
-            }),
-          },
-        ]}>
-        <Image source={{uri: product?.image?.full}} style={{flex: 1}} />
-      </Animated.View>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('PreviewImage', {
+            gallery: product?.gallery,
+          });
+        }}>
+        <ImageBackground
+          source={{uri: product?.image?.full}}
+          style={styles.banner}>
+
+          <Header
+            title=""
+            renderLeft={() => {
+              return (
+                <Icon
+                  name="arrow-left"
+                  size={25}
+                  color={BaseColor.whiteColor}
+                />
+              );
+            }}
+            renderRight={() => {
+              return (
+                <Icon name="images" size={35} color={BaseColor.whiteColor} />
+              );
+            }}
+            onPressLeft={() => {
+              navigation.goBack();
+            }}
+            onPressRight={() => {
+              navigation.navigate('PreviewImage', {
+                gallery: product?.gallery,
+              });
+            }}
+          />
+        </ImageBackground>
+      </TouchableOpacity>
     );
   };
 
@@ -470,7 +492,7 @@ export default function ProductDetail({navigation, route}) {
           setHeightHeader(Utils.heightHeader());
         }}
         scrollEventThrottle={8}>
-        <View style={{height: 255 - heightHeader}} />
+        {renderBanner()}
         <View
           style={{
             paddingHorizontal: 20,
@@ -655,7 +677,8 @@ export default function ProductDetail({navigation, route}) {
               onPress={() => onProductDetail(item)}
               onPressTag={onReview}
               style={{
-                marginLeft: 15, marginBottom: 15,
+                marginLeft: 15,
+                marginBottom: 15,
                 width: Dimensions.get('window').width / 2,
               }}
             />
@@ -667,29 +690,7 @@ export default function ProductDetail({navigation, route}) {
 
   return (
     <View style={{flex: 1}}>
-      {renderBanner()}
       <SafeAreaView style={BaseStyle.safeAreaView} edges={['right', 'left']}>
-        <Header
-          title=""
-          renderLeft={() => {
-            return (
-              <Icon name="arrow-left" size={20} color={BaseColor.whiteColor} />
-            );
-          }}
-          renderRight={() => {
-            return (
-              <Icon name="images" size={40} color={BaseColor.whiteColor} />
-            );
-          }}
-          onPressLeft={() => {
-            navigation.goBack();
-          }}
-          onPressRight={() => {
-            navigation.navigate('PreviewImage', {
-              gallery: product?.gallery,
-            });
-          }}
-        />
         {renderContent()}
       </SafeAreaView>
     </View>

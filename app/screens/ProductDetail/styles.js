@@ -6,12 +6,21 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  banner: {
+    height: 250,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
+  },
   imgBanner: {
     width: '100%',
     height: 250,
     position: 'absolute',
   },
+  imageShow: {
+    marginTop: 200,
+  },
   lineSpace: {
+    marginTop: 15,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
