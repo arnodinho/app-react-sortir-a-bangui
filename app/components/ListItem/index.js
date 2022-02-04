@@ -24,6 +24,7 @@ export default function ListItem(props) {
     image,
     title,
     subtitle,
+    showFavorite,
     location,
     phone,
     rate,
@@ -254,22 +255,7 @@ export default function ListItem(props) {
           <Tag status style={styles.tagGirdStatus}>
             {t(status)}
           </Tag>
-          {favorite ? (
-            <Icon
-              name="heart"
-              color={colors.primaryLight}
-              solid
-              size={18}
-              style={styles.iconGirdLike}
-            />
-          ) : (
-            <Icon
-              name="heart"
-              color={colors.primaryLight}
-              size={18}
-              style={styles.iconGirdLike}
-            />
-          )}
+          {renderFavorite()}
         </TouchableOpacity>
         <Text
           footnote
@@ -312,6 +298,31 @@ export default function ListItem(props) {
           {location}
         </Text>
       );
+    }
+  };
+
+  const renderFavorite = () => {
+    if (showFavorite === true) {
+      if (favorite) {
+        return (
+          <Icon
+            name="heart"
+            color={colors.primaryLight}
+            solid
+            size={18}
+            style={styles.iconGirdLike}
+          />
+        );
+      } else {
+        return (
+          <Icon
+            name="heart"
+            color={colors.primaryLight}
+            size={18}
+            style={styles.iconGirdLike}
+          />
+        );
+      }
     }
   };
   const renderSmall = () => {
@@ -386,6 +397,7 @@ ListItem.propTypes = {
   favorite: PropTypes.bool,
   title: PropTypes.string,
   subtitle: PropTypes.string,
+  showFavorite: PropTypes.bool,
   location: PropTypes.string,
   phone: PropTypes.string,
   rate: PropTypes.number,
@@ -408,6 +420,7 @@ ListItem.defaultProps = {
   favorite: false,
   title: '',
   subtitle: '',
+  showFavorite: true,
   location: '',
   phone: '',
   rate: 4.5,

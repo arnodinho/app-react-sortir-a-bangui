@@ -198,13 +198,10 @@ export default function Home({navigation}) {
               rateStatus={item.rateStatus}
               numReviews={item.numReviews}
               favorite={item.favorite}
+              showFavorite={false}
               onPress={() => {
                 navigation.navigate('ProductDetail', {
                   id: item.id,
-                  onLike: favorite => {
-                    item.favorite = favorite;
-                    onUpdate(item);
-                  },
                 });
               }}
               style={{

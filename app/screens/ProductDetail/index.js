@@ -374,31 +374,11 @@ export default function ProductDetail({navigation, route}) {
         <ImageBackground
           source={{uri: product?.image?.full}}
           style={styles.banner}>
-
-          <Header
-            title=""
-            renderLeft={() => {
-              return (
-                <Icon
-                  name="arrow-left"
-                  size={25}
-                  color={BaseColor.whiteColor}
-                />
-              );
-            }}
-            renderRight={() => {
-              return (
-                <Icon name="images" size={35} color={BaseColor.whiteColor} />
-              );
-            }}
-            onPressLeft={() => {
-              navigation.goBack();
-            }}
-            onPressRight={() => {
-              navigation.navigate('PreviewImage', {
-                gallery: product?.gallery,
-              });
-            }}
+          <Icon
+            name="images"
+            size={35}
+            color={BaseColor.whiteColor}
+            style={{marginRight: 20, marginTop: 20}}
           />
         </ImageBackground>
       </TouchableOpacity>
@@ -690,6 +670,22 @@ export default function ProductDetail({navigation, route}) {
 
   return (
     <View style={{flex: 1}}>
+      <Header
+        title="Détail"
+        renderLeft={() => {
+          return (
+            <Icon
+              name="arrow-left"
+              size={20}
+              color={colors.primary}
+              enableRTL={true}
+            />
+          );
+        }}
+        onPressLeft={() => {
+          navigation.goBack();
+        }}
+      />
       <SafeAreaView style={BaseStyle.safeAreaView} edges={['right', 'left']}>
         {renderContent()}
       </SafeAreaView>
