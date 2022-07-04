@@ -3,7 +3,6 @@ import {View, KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
 import {BaseStyle, useTheme} from '@config';
 import {useTranslation} from 'react-i18next';
 import {Header, SafeAreaView, Icon, Text, Button, TextInput} from '@components';
-import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import styles from './styles';
 
 export default function ContactUs({navigation}) {
@@ -16,6 +15,7 @@ export default function ContactUs({navigation}) {
 
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
+  const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState({
     firstname: true,
@@ -38,29 +38,29 @@ export default function ContactUs({navigation}) {
    * @date 2019-08-03
    */
   const onSubmit = () => {
-    if (lastname == '' || firstname == '' || message == '') {
+    if (lastname == '' || firstname == '' || email == '' || message == '') {
       setSuccess({
         ...success,
         lastname: lastname != '' ? true : false,
         firstname: firstname != '' ? true : false,
+        email: email != '' ? true : false,
         message: message != '' ? true : false,
       });
     } else {
-      fetch(
-        'https://sortir-a-bangui-default-rtdb.europe-west1.firebasedatabase.app/contact.json',
-        {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            lastname: lastname,
-            firstname: firstname,
-            message: message,
-          }),
+      fetch('https://bantu-dico.com/api/message', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
         },
-      ).then(response => response.json());
+        body: JSON.stringify({
+          firstname: firstname,
+          lastname: lastname,
+          email: email,
+          site: Platform.OS === 'android' ? 'app-android-sab' : 'app-ios-sab',
+          content: message,
+        }),
+      }).then(response => response.json());
 
       setLoading(true);
       setTimeout(() => {
@@ -114,6 +114,14 @@ export default function ContactUs({navigation}) {
             placeholder={t('firstname')}
             success={success.firstname}
             value={firstname}
+          />
+          <TextInput
+            style={{marginTop: 10}}
+            onChangeText={text => setEmail(text)}
+            placeholderTextColor={'gray'}
+            placeholder="Email"
+            success={success.email}
+            value={email}
           />
           <TextInput
             style={{marginTop: 10, height: 150}}
