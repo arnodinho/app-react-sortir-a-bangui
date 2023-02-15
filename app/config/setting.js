@@ -5,7 +5,7 @@ export const BaseSetting = {
   name: 'listar',
   displayName: 'Yanga Consulting @ Copyright 2022',
   appVersion: '1.0.3',
-  domain: 'ws.bantu-dico.com',
+  domain: 'sab.yanga-consulting.com',
   protocol: 'https',
   defaultLanguage: 'fr',
   languageSupport: [
