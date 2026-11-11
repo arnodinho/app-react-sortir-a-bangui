@@ -60,6 +60,10 @@ source/buck-out/
 source/ios/Pods/
 source/ios.zip
 
+# Secrets / signing
+source/android/sab-keystore
+source/ios/GoogleService-Info.plist
+
 # Expo
 source-expo/node_modules/
 source-expo/.expo/
