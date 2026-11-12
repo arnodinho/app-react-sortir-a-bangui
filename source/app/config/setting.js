@@ -4,7 +4,7 @@
 export const BaseSetting = {
   name: 'listar',
   displayName: 'Yanga Consulting @ Copyright 2022',
-  appVersion: '1.0.3',
+  appVersion: '1.0.6',
   domain: 'sab.yanga-consulting.com',
   protocol: 'https',
   defaultLanguage: 'fr',

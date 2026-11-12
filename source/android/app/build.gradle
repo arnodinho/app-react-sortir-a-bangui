@@ -22,8 +22,8 @@ android {
         applicationId "com.ayanga.sortirabangui"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 12
-        versionName "1.0.5"
+        versionCode 13
+        versionName "1.0.6"
         multiDexEnabled true
     }
 
@@ -78,7 +78,7 @@ android {
 dependencies {
     implementation project(':react-native-fast-image')
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "com.facebook.react:react-native:+"
+    implementation "com.facebook.react:react-native:0.65.1"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
     implementation 'com.android.support:multidex:1.0.3'
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
