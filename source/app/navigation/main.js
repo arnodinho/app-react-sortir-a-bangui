@@ -6,7 +6,12 @@ import {useTranslation} from 'react-i18next';
 import {Icon} from '@components';
 import {userSelect} from '@selectors';
 import {useSelector} from 'react-redux';
-import messaging from '@react-native-firebase/messaging';
+import {
+  getMessaging,
+  onNotificationOpenedApp,
+  onMessage,
+  getInitialNotification,
+} from '@react-native-firebase/messaging';
 
 /* Bottom Screen */
 import Home from '@screens/Home';
@@ -53,19 +58,19 @@ export default function Main({navigation}) {
       }
     };
 
-    messaging().onNotificationOpenedApp(remoteMessage => {
+    const messagingInstance = getMessaging();
+
+    onNotificationOpenedApp(messagingInstance, remoteMessage => {
       handleNotification(remoteMessage.data);
     });
-    messaging().onMessage(remoteMessage => {
+    onMessage(messagingInstance, remoteMessage => {
       handleNotification(remoteMessage.data);
     });
-    messaging()
-      .getInitialNotification()
-      .then(remoteMessage => {
-        if (remoteMessage) {
-          handleNotification(remoteMessage.data);
-        }
-      });
+    getInitialNotification(messagingInstance).then(remoteMessage => {
+      if (remoteMessage) {
+        handleNotification(remoteMessage.data);
+      }
+    });
   }, [navigation]);
 
   return (

@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import {BaseColor} from '@config';
 
 export default function ProfileDetail(props) {
+  props = {...ProfileDetail.defaultProps, ...props};
   const {
     style,
     image,

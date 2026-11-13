@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import styles from './styles';
 
 export default function CommentItem(props) {
+  props = {...CommentItem.defaultProps, ...props};
   const {colors} = useTheme();
   const cardColor = colors.card;
   const {style, image, name, rate, date, comment} = props;

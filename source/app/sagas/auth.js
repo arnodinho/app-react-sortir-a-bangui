@@ -1,13 +1,18 @@
 import {all, put, takeEvery, delay} from 'redux-saga/effects';
 import * as actionTypes from '@actions/actionTypes';
 import * as api from '@api';
-import messaging from '@react-native-firebase/messaging';
+import {
+  getMessaging,
+  requestPermission,
+  getToken,
+} from '@react-native-firebase/messaging';
 import {UserModel} from '@models';
 
 function* onLogin(action) {
   try {
-    yield messaging().requestPermission();
-    const token = yield messaging().getToken();
+    const messagingInstance = getMessaging();
+    yield requestPermission(messagingInstance);
+    const token = yield getToken(messagingInstance);
     yield put({type: actionTypes.SAVE_DEVICE_TOKEN, token});
     delay(250);
     const response = yield api.fetchLogin(action.params);

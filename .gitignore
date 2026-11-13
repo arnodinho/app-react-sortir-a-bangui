@@ -27,6 +27,8 @@ source/android/app/build/
 source/android/build/
 .idea
 .gradle
+.cxx
+.kotlin
 local.properties
 *.iml
 
@@ -58,7 +60,12 @@ source/buck-out/
 
 # CocoaPods
 source/ios/Pods/
+source/ios/build/
 source/ios.zip
+**/.xcode.env.local
+
+# Ruby (CocoaPods via bundler)
+source/vendor/bundle/
 
 # Secrets / signing
 source/android/sab-keystore

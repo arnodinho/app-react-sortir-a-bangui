@@ -21,8 +21,10 @@ import CategoryFull from './CategoryFull';
 import ListItem from './ListItem';
 import ProfileDescription from './ProfileDescription';
 import RangeSlider from './RangeSlider';
+import PaginationDots from './PaginationDots';
 
 export {
+  PaginationDots,
   TextInput,
   ListItem,
   CategoryFull,

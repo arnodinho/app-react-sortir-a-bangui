@@ -6,6 +6,7 @@ import {Image} from '@components';
 import {Images, useTheme} from '@config';
 
 export default function Card(props) {
+  props = {...Card.defaultProps, ...props};
   const {colors} = useTheme();
   const {style, children, styleContent, image, onPress} = props;
   return (

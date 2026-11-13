@@ -2,7 +2,9 @@ import React, {memo} from 'react';
 import {StyleSheet, View} from 'react-native';
 
 const RailSelected = props => {
-  return <View style={[styles.root, {backgroundColor: props.color}]} />;
+  return (
+    <View style={[styles.root, {backgroundColor: props.color}, props.style]} />
+  );
 };
 
 export default memo(RailSelected);

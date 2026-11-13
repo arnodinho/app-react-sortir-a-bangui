@@ -1,5 +1,13 @@
 import {useSelector} from 'react-redux';
 import {useColorScheme} from 'react-native';
+import {DefaultTheme as NavigationDefaultTheme} from '@react-navigation/native';
+
+/**
+ * React Navigation v7 requires a `fonts` key (and `colors.notification`) on
+ * every theme object passed to NavigationContainer — reuse its own default
+ * font set rather than hand-rolling the platform-specific font stack.
+ */
+const {fonts} = NavigationDefaultTheme;
 
 /**
  * Define Const color use for whole application
@@ -35,7 +43,9 @@ export const ThemeSupport = [
         card: '#F5F5F5',
         text: '#212121',
         border: '#c7c7cc',
+        notification: '#FF8A65',
       },
+      fonts,
     },
     dark: {
       dark: true,
@@ -48,7 +58,9 @@ export const ThemeSupport = [
         card: '#121212',
         text: '#e5e5e7',
         border: '#272729',
+        notification: '#FF8A65',
       },
+      fonts,
     },
   },
 ];
@@ -69,7 +81,9 @@ export const DefaultTheme = {
       card: '#F5F5F5',
       text: '#212121',
       border: '#c7c7cc',
+      notification: '#FF8A65',
     },
+    fonts,
   },
   dark: {
     dark: true,
@@ -82,7 +96,9 @@ export const DefaultTheme = {
       card: '#121212',
       text: '#e5e5e7',
       border: '#272729',
+      notification: '#FF8A65',
     },
+    fonts,
   },
 };
 

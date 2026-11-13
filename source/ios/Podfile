@@ -1,25 +1,39 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
 
-require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+platform :ios, min_ios_version_supported
+prepare_react_native_project!
 
-platform :ios, '11.0'
+# @react-native-firebase resolves Firebase via Swift Package Manager, whose
+# products are static-only; with CocoaPods' default static linkage those
+# collide at link time. Dynamic linkage is the documented fix (see
+# https://rnfirebase.io/ios-spm).
+use_frameworks! :linkage => :dynamic
 
-target 'listar' do
+target 'SortirABangui' do
   config = use_native_modules!
+
+  # app/screens/List uses <MapView provider={PROVIDER_GOOGLE}>, so pull in
+  # react-native-maps' Google subspec (GoogleMaps + Google-Maps-iOS-Utils)
+  # instead of the Apple Maps default.
+  pod 'react-native-maps', :path => '../node_modules/react-native-maps', :subspecs => ['Google']
 
   use_react_native!(
     :path => config[:reactNativePath],
-    :hermes_enabled => false
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  use_flipper!()
   post_install do |installer|
-    react_native_post_install(installer)
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false,
+      # :ccache_enabled => true
+    )
   end
-
-  rn_maps_path = '../node_modules/react-native-maps'
-  pod 'react-native-google-maps', :path => rn_maps_path
-  pod 'GoogleMaps'
-  pod 'Google-Maps-iOS-Utils'
 end
-

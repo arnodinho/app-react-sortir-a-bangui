@@ -6,6 +6,7 @@ import styles from './styles';
 import PropTypes from 'prop-types';
 
 export default function Header(props) {
+  props = {...Header.defaultProps, ...props};
   const forceDark = useSelector(state => state.application.force_dark);
   const {
     style,

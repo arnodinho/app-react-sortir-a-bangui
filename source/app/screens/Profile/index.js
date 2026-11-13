@@ -14,7 +14,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {useTranslation} from 'react-i18next';
 import {authActions} from '@actions';
 import {userSelect} from '@selectors';
-import messaging from '@react-native-firebase/messaging';
+import {getMessaging, deleteToken} from '@react-native-firebase/messaging';
 
 export default function Profile({navigation}) {
   const {colors} = useTheme();
@@ -31,7 +31,7 @@ export default function Profile({navigation}) {
   const onLogout = () => {
     setLoading(true);
     dispatch(authActions.onLogout());
-    messaging().deleteToken();
+    deleteToken(getMessaging());
   };
 
   return (

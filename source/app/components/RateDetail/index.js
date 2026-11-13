@@ -7,6 +7,7 @@ import styles from './styles';
 import {useTranslation} from 'react-i18next';
 
 export default function RateDetail(props) {
+  props = {...RateDetail.defaultProps, ...props};
   const {colors} = useTheme();
   const {t} = useTranslation();
   const {style, point, maxPoint, totalRating, data} = props;

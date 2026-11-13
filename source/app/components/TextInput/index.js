@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import {BaseStyle, BaseColor, useTheme, useFont} from '@config';
 
 export default function Index(props) {
+  props = {...Index.defaultProps, ...props};
   const {colors} = useTheme();
   const font = useFont();
   const cardColor = colors.card;

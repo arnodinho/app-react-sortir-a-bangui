@@ -1,0 +1,21 @@
+diff --git a/node_modules/react-native-maps/react-native-maps.podspec b/node_modules/react-native-maps/react-native-maps.podspec
+index f87cac0..10eab08 100644
+--- a/node_modules/react-native-maps/react-native-maps.podspec
++++ b/node_modules/react-native-maps/react-native-maps.podspec
+@@ -18,6 +18,16 @@ Pod::Spec.new do |s|
+   # Set module_name at the root spec level
+   s.module_name = 'ReactNativeMaps'
+ 
++  # GoogleMaps (pulled in by the Google subspec) only ships a static
++  # xcframework, which CocoaPods forbids a *dynamic* pod from depending on.
++  # The project-wide `use_frameworks! :linkage => :dynamic` (required by
++  # @react-native-firebase's SPM-resolved Firebase) would otherwise build
++  # this pod dynamic too, so pin it static. Podfile post_install hooks run
++  # too late to affect this check — see ios/Podfile for the long version.
++  # NOTE: this patch lives in node_modules and will be lost on a fresh
++  # `npm install`; re-apply (or convert to patch-package) if that happens.
++  s.static_framework = true
++
+   # Generated code subspec
+   s.subspec 'Generated' do |ss|
+     ss.source_files = "ios/generated/**/*.{h,m,mm,cpp,swift}"

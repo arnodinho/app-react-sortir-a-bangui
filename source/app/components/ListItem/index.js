@@ -12,6 +12,7 @@ import {
   PlaceholderMedia,
 } from 'rn-placeholder';
 export default function ListItem(props) {
+  props = {...ListItem.defaultProps, ...props};
   const {t} = useTranslation();
   const {colors} = useTheme();
   const {

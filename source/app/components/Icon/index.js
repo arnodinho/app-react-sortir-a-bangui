@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import styles from './styles';
 
 export default function Index(props) {
+  props = {...Index.defaultProps, ...props};
   const {style, enableRTL, ...rest} = props;
   const layoutStyle = enableRTL ? styles.styleRTL : {};
   return <Icon style={StyleSheet.flatten([style, layoutStyle])} {...rest} />;

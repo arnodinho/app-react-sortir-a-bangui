@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   ScrollView,
@@ -14,19 +14,27 @@ import {
   Progressive,
   PlaceholderMedia,
 } from 'rn-placeholder';
-import {Image, Text, Icon, Card, SafeAreaView, ListItem} from '@components';
+import {
+  Image,
+  Text,
+  Icon,
+  Card,
+  SafeAreaView,
+  ListItem,
+  PaginationDots,
+} from '@components';
 import {BaseStyle, BaseColor, useTheme} from '@config';
 import * as Utils from '@utils';
 import styles from './styles';
-import Swiper from 'react-native-swiper';
+import PagerView from 'react-native-pager-view';
 import {useSelector, useDispatch} from 'react-redux';
 import {homeSelect, settingSelect} from '@selectors';
 import {wishListActions} from '@actions';
 import {useTranslation} from 'react-i18next';
 import {FilterModel} from '@models';
 
-const deltaY = new Animated.Value(0);
 export default function Home({navigation}) {
+  const deltaY = useRef(new Animated.Value(0)).current;
   const {colors} = useTheme();
   const {t} = useTranslation();
   const dispatch = useDispatch();
@@ -35,6 +43,21 @@ export default function Home({navigation}) {
   const [heightHeader, setHeightHeader] = useState(Utils.heightHeader());
   const heightImageBanner = Utils.scaleWithPixel(180);
   const marginTopBanner = heightImageBanner - heightHeader + 10;
+  const bannerPagerRef = useRef(null);
+  const [bannerIndex, setBannerIndex] = useState(0);
+
+  useEffect(() => {
+    const count = home.sliders?.length ?? 0;
+    if (count < 2) {
+      return;
+    }
+    const timer = setInterval(() => {
+      const next = (bannerIndex + 1) % count;
+      bannerPagerRef.current?.setPage(next);
+      setBannerIndex(next);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, [bannerIndex, home.sliders?.length]);
 
   /**
    * update status wishlist
@@ -50,19 +73,26 @@ export default function Home({navigation}) {
   const renderBanner = () => {
     if (home.sliders?.length > 0) {
       return (
-        <Swiper
-          dotStyle={{
-            backgroundColor: colors.text,
-          }}
-          activeDotColor={colors.primary}
-          paginationStyle={styles.contentPage}
-          removeClippedSubviews={false}
-          autoplay={true}
-          autoplayTimeout={2}>
-          {home.sliders.map((item, index) => {
-            return <Image key={item} source={{uri: item}} style={{flex: 1}} />;
-          })}
-        </Swiper>
+        <View style={{flex: 1}}>
+          <PagerView
+            ref={bannerPagerRef}
+            style={{flex: 1}}
+            initialPage={0}
+            onPageSelected={e => setBannerIndex(e.nativeEvent.position)}>
+            {home.sliders.map((item, index) => (
+              <View key={item}>
+                <Image source={{uri: item}} style={{flex: 1}} />
+              </View>
+            ))}
+          </PagerView>
+          <PaginationDots
+            style={styles.contentPage}
+            count={home.sliders.length}
+            activeIndex={bannerIndex}
+            dotStyle={{backgroundColor: colors.text}}
+            activeDotColor={colors.primary}
+          />
+        </View>
       );
     }
 

@@ -1,8 +1,15 @@
 import React, {useState} from 'react';
 import {View, FlatList, TouchableOpacity} from 'react-native';
 import {BaseStyle, BaseColor, useTheme} from '@config';
-import Swiper from 'react-native-swiper';
-import {Image, Header, SafeAreaView, Icon, Text} from '@components';
+import PagerView from 'react-native-pager-view';
+import {
+  Image,
+  Header,
+  SafeAreaView,
+  Icon,
+  Text,
+  PaginationDots,
+} from '@components';
 import styles from './styles';
 
 export default function PreviewImage({navigation, route}) {
@@ -38,7 +45,7 @@ export default function PreviewImage({navigation, route}) {
     if (touched === indexSelected) {
       return;
     }
-    swiperRef?.scrollBy(touched - indexSelected, false);
+    swiperRef?.setPage(touched);
   };
 
   return (
@@ -58,29 +65,32 @@ export default function PreviewImage({navigation, route}) {
         }}
         barStyle="light-content"
       />
-      <Swiper
-        ref={ref => {
-          swiperRef = ref;
-        }}
-        dotStyle={{
-          backgroundColor: BaseColor.dividerColor,
-        }}
-        paginationStyle={{bottom: 0}}
-        loop={false}
-        activeDotColor={colors.primary}
-        removeClippedSubviews={false}
-        onIndexChanged={index => onSelect(index)}>
-        {images.map((item, key) => {
-          return (
-            <Image
-              key={`image${key}`}
-              style={{width: '100%', height: '100%'}}
-              resizeMode="contain"
-              source={{uri: item.full}}
-            />
-          );
-        })}
-      </Swiper>
+      <View style={{flex: 1}}>
+        <PagerView
+          ref={ref => {
+            swiperRef = ref;
+          }}
+          style={{flex: 1}}
+          initialPage={0}
+          onPageSelected={e => onSelect(e.nativeEvent.position)}>
+          {images.map((item, key) => (
+            <View key={`image${key}`}>
+              <Image
+                style={{width: '100%', height: '100%'}}
+                resizeMode="contain"
+                source={{uri: item.full}}
+              />
+            </View>
+          ))}
+        </PagerView>
+        <PaginationDots
+          style={{bottom: 0}}
+          count={images.length}
+          activeIndex={indexSelected}
+          dotStyle={{backgroundColor: BaseColor.dividerColor}}
+          activeDotColor={colors.primary}
+        />
+      </View>
       <View
         style={{
           paddingVertical: 10,

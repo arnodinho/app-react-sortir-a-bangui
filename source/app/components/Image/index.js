@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import FastImage from 'react-native-fast-image';
 
 export default function Image(props) {
+  props = {...Image.defaultProps, ...props};
   const {style, resizeMode, ...rest} = props;
   let resize = FastImage.resizeMode.cover;
   switch (resizeMode) {

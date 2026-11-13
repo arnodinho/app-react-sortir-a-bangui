@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {BaseStyle, BaseColor, useTheme} from '@config';
-import Carousel from 'react-native-snap-carousel';
+import {Carousel} from 'react-native-reanimated-carousel';
 import {
   Header,
   SafeAreaView,
@@ -33,8 +33,8 @@ export default function List({navigation, route}) {
   const setting = useSelector(settingSelect);
   const user = useSelector(userSelect);
 
-  const scrollAnim = new Animated.Value(0);
-  const offsetAnim = new Animated.Value(0);
+  const scrollAnim = useRef(new Animated.Value(0)).current;
+  const offsetAnim = useRef(new Animated.Value(0)).current;
   const clampedScroll = Animated.diffClamp(
     Animated.add(
       scrollAnim.interpolate({
@@ -212,7 +212,7 @@ export default function List({navigation, route}) {
         element.location.latitude == location.latitude &&
         element.location.longitude == location.longitude
       ) {
-        sliderRef.current.snapToItem(index);
+        sliderRef.current.scrollTo({index, animated: true});
         return;
       }
     }
@@ -902,14 +902,11 @@ export default function List({navigation, route}) {
                 onPressTag={() => onReview(item)}
               />
             )}
-            sliderWidth={viewportWidth}
-            itemWidth={getViewPort(75) + getViewPort(2) * 2}
-            firstItem={1}
-            inactiveSlideScale={0.95}
-            inactiveSlideOpacity={0.85}
-            contentContainerCustomStyle={{paddingVertical: 10}}
+            style={{width: viewportWidth, height: Utils.scaleWithPixel(110)}}
+            itemSize={getViewPort(75) + getViewPort(2) * 2}
+            defaultIndex={1}
+            layout={{type: 'parallax', scale: 0.95, adjacentScale: 0.85}}
             loop={true}
-            loopClonesPerSide={2}
             autoplay={false}
             onSnapToItem={index => {
               setActive(index);

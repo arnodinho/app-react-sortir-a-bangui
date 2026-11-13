@@ -5,6 +5,7 @@ import styles from './styles';
 import PropTypes from 'prop-types';
 import {useTheme} from '@config';
 export default function ListThumbCircle(props) {
+  props = {...ListThumbCircle.defaultProps, ...props};
   const {colors} = useTheme();
   const {
     style,

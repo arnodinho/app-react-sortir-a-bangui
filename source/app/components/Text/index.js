@@ -46,6 +46,7 @@ const Merriweather = {
 };
 
 export default function Index(props) {
+  props = {...Index.defaultProps, ...props};
   const {
     //props style
     header,

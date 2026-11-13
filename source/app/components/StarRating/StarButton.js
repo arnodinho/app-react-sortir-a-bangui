@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, ViewPropTypes, TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import {Image} from '@components';
 import PropTypes from 'prop-types';
 import {createIconSetFromIcoMoon} from 'react-native-vector-icons';
@@ -30,7 +30,7 @@ const iconSets = {
 };
 
 const propTypes = {
-  buttonStyle: ViewPropTypes.style,
+  buttonStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.number]),
   disabled: PropTypes.bool.isRequired,
   halfStarEnabled: PropTypes.bool.isRequired,
   icoMoonJson: PropTypes.string,
@@ -45,7 +45,7 @@ const propTypes = {
   ]).isRequired,
   starSize: PropTypes.number.isRequired,
   activeOpacity: PropTypes.number.isRequired,
-  starStyle: ViewPropTypes.style,
+  starStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.number]),
   onStarButtonPress: PropTypes.func.isRequired,
 };
 
@@ -56,6 +56,7 @@ const defaultProps = {
 };
 
 function StarButton(props) {
+  props = {...StarButton.defaultProps, ...props};
   const {
     halfStarEnabled,
     starSize,
