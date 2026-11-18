@@ -3,7 +3,7 @@
  * Plugin Name: Sortir à Bangui – Agenda (événements)
  * Description: Type de contenu « sab_event » + API REST sab/v1/events utilisée par l'onglet
  *              Agenda de l'application mobile (liste, détail, proposition d'un événement).
- * Version:     0.2.3
+ * Version:     0.2.4
  *
  * Installation : copier ce fichier dans wp-content/mu-plugins/ (chargé automatiquement).
  *
@@ -81,7 +81,69 @@ add_action('admin_enqueue_scripts', function ($hook) {
     wp_enqueue_style('leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', [], '1.9.4');
     wp_enqueue_script('leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], '1.9.4', true);
     wp_add_inline_script('leaflet', sab_event_map_js(), 'after');
+
+    // Galerie : sélecteur de la médiathèque WordPress (choix ou téléversement).
+    wp_enqueue_media();
+    wp_register_script('sab-event-gallery', false, ['jquery', 'jquery-ui-sortable'], '1', true);
+    wp_enqueue_script('sab-event-gallery');
+    wp_add_inline_script('sab-event-gallery', sab_event_gallery_js());
+    wp_add_inline_style('wp-admin', '
+        #sab-event-gallery-list{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px;padding:0}
+        #sab-event-gallery-list li{position:relative;width:96px;height:96px;margin:0;cursor:move;list-style:none}
+        #sab-event-gallery-list img{width:96px;height:96px;object-fit:cover;border:1px solid #c3c4c7;border-radius:4px;display:block}
+        #sab-event-gallery-list .sab-remove{position:absolute;top:-6px;right:-6px;width:22px;height:22px;line-height:20px;text-align:center;border-radius:50%;background:#d63638;color:#fff;border:0;cursor:pointer;font-size:14px;padding:0}
+        #sab-event-gallery-list li:first-child img{outline:3px solid #2271b1;outline-offset:-3px}
+    ');
 });
+
+function sab_event_gallery_js()
+{
+    $max = (int) SAB_EVENT_MAX_PHOTOS;
+    return <<<JS
+jQuery(function ($) {
+    var input = $('#sab_event_gallery'), list = $('#sab-event-gallery-list'), frame;
+    if (!input.length) return;
+    var MAX = {$max};
+
+    function sync() {
+        var ids = list.children('li').map(function () { return $(this).data('id'); }).get();
+        input.val(ids.join(','));
+        $('#sab-event-gallery-add').toggle(ids.length < MAX);
+    }
+    function add(id, url) {
+        if (list.children('li[data-id="' + id + '"]').length || list.children('li').length >= MAX) return;
+        $('<li>').attr('data-id', id).data('id', id)
+            .append($('<img>').attr('src', url).attr('alt', ''))
+            .append($('<button type="button" class="sab-remove" title="Retirer">&times;</button>'))
+            .appendTo(list);
+    }
+
+    list.sortable({update: sync});
+    list.on('click', '.sab-remove', function () { $(this).closest('li').remove(); sync(); });
+
+    $('#sab-event-gallery-add').on('click', function (e) {
+        e.preventDefault();
+        if (!frame) {
+            frame = wp.media({
+                title: 'Photos de l\'événement',
+                button: {text: 'Ajouter à la galerie'},
+                library: {type: 'image'},
+                multiple: 'add'
+            });
+            frame.on('select', function () {
+                frame.state().get('selection').each(function (att) {
+                    var a = att.toJSON(), s = a.sizes || {};
+                    add(a.id, (s.thumbnail || s.medium || s.full || a).url);
+                });
+                sync();
+            });
+        }
+        frame.open();
+    });
+    sync();
+});
+JS;
+}
 
 function sab_event_map_js()
 {
@@ -162,12 +224,16 @@ function sab_event_render_metabox(WP_Post $post)
         'sab_event_price'     => 'Prix',
         'sab_event_phone'     => 'Téléphone',
         'sab_event_website'   => 'Site web / billetterie',
-        'sab_event_gallery'   => 'Galerie (ids des médias, séparés par des virgules)',
+        'sab_event_gallery'   => 'Galerie photos',
         'sab_event_place_id'  => 'Place associée',
     ];
     echo '<table class="form-table">';
     foreach ($labels as $key => $label) {
         $value = get_post_meta($post->ID, $key, true);
+        if ($key === 'sab_event_gallery') {
+            printf('<tr><th>%1$s</th><td>%2$s</td></tr>', esc_html($label), sab_event_gallery_field($key, (string) $value));
+            continue;
+        }
         if ($key === 'sab_event_place_id') {
             printf('<tr><th><label for="%1$s">%2$s</label></th><td>%3$s</td></tr>',
                 esc_attr($key), esc_html($label), sab_event_place_select($key, (int) $value));
@@ -193,6 +259,25 @@ function sab_event_render_metabox(WP_Post $post)
         . '<a href="#" id="sab-event-map-clear">Effacer la position</a></p>'
         . '</td></tr>';
     echo '</table>';
+}
+
+/** Galerie : vignettes réordonnables + champ caché des ids (rempli par sab_event_gallery_js). */
+function sab_event_gallery_field($name, $value)
+{
+    $items = '';
+    foreach (array_filter(array_map('absint', explode(',', $value))) as $id) {
+        $url = wp_get_attachment_image_url($id, 'thumbnail');
+        if ($url) {
+            $items .= sprintf('<li data-id="%d"><img src="%s" alt=""><button type="button" class="sab-remove" title="Retirer">&times;</button></li>',
+                $id, esc_url($url));
+        }
+    }
+    return sprintf('<input type="hidden" id="%1$s" name="%1$s" value="%2$s">', esc_attr($name), esc_attr($value))
+        . '<ul id="sab-event-gallery-list">' . $items . '</ul>'
+        . '<button type="button" class="button" id="sab-event-gallery-add">Ajouter des photos</button>'
+        . sprintf('<p class="description">Choisissez des images dans la médiathèque ou téléversez-en (%d maximum). '
+            . 'Glissez les vignettes pour les réordonner ; la première est la photo principale si l\'événement n\'a pas d\'image mise en avant.</p>',
+            SAB_EVENT_MAX_PHOTOS);
 }
 
 /** Liste déroulante des places Listar (publiées, plus la place déjà associée quel que soit son statut). */
