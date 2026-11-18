@@ -72,14 +72,22 @@ export default function SignIn({navigation, route}) {
           setLoading(false);
           return;
         }
+        // The JWT plugin answers in English ("Invalid username or incorrect
+        // password."): translate from the stable error code instead. Codes
+        // look like "[jwt_auth] invalid_username".
+        const code = String(response?.data?.code ?? '');
+        const badCredentials =
+          /invalid_username|incorrect_password|invalid_email|empty_username|empty_password/.test(
+            code,
+          );
         Alert.alert({
           title: t('sign_in'),
-          // WordPress error messages contain HTML (e.g. "<strong>Erreur :</strong>").
-          message: String(
-            response?.data?.message ?? response?.data?.code ?? response,
-          )
-            .replace(/<[^>]+>/g, '')
-            .trim(),
+          message: badCredentials
+            ? t('login_invalid_credentials')
+            : // WordPress error messages contain HTML (e.g. "<strong>Erreur :</strong>").
+              String(response?.data?.message ?? response?.data?.code ?? response)
+                .replace(/<[^>]+>/g, '')
+                .trim(),
         });
         setLoading(false);
       }),

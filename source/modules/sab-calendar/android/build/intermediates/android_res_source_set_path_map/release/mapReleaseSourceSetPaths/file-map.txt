@@ -1,0 +1,9 @@
+com.ayanga.sabcalendar.sab-calendar-pngs-0 /Users/arnaudyanga-esso/Projects/sortir-a-bangui/source/node_modules/sab-calendar/android/build/generated/res/pngs/release
+com.ayanga.sabcalendar.sab-calendar-updated_navigation_xml-1 /Users/arnaudyanga-esso/Projects/sortir-a-bangui/source/node_modules/sab-calendar/android/build/generated/updated_navigation_xml/release
+com.ayanga.sabcalendar.sab-calendar-mergeReleaseResources-2 /Users/arnaudyanga-esso/Projects/sortir-a-bangui/source/node_modules/sab-calendar/android/build/intermediates/incremental/release/mergeReleaseResources/merged.dir
+com.ayanga.sabcalendar.sab-calendar-mergeReleaseResources-3 /Users/arnaudyanga-esso/Projects/sortir-a-bangui/source/node_modules/sab-calendar/android/build/intermediates/incremental/release/mergeReleaseResources/stripped.dir
+com.ayanga.sabcalendar.sab-calendar-release-4 /Users/arnaudyanga-esso/Projects/sortir-a-bangui/source/node_modules/sab-calendar/android/build/intermediates/merged_res/release/mergeReleaseResources
+com.ayanga.sabcalendar.sab-calendar-release-5 /Users/arnaudyanga-esso/Projects/sortir-a-bangui/source/node_modules/sab-calendar/android/build/intermediates/packaged_res/release/packageReleaseResources
+com.ayanga.sabcalendar.sab-calendar-main-6 /Users/arnaudyanga-esso/Projects/sortir-a-bangui/source/node_modules/sab-calendar/android/src/main/res
+com.ayanga.sabcalendar.sab-calendar-release-7 /Users/arnaudyanga-esso/Projects/sortir-a-bangui/source/node_modules/sab-calendar/android/src/release/res
+gradleHome-0 /Users/arnaudyanga-esso/.gradle

@@ -128,7 +128,7 @@ class Api {
    * @returns
    * @memberof Api
    */
-  async get(endPoint, {params, headers, uniqueRequest, responseType}) {
+  async get(endPoint, {params, headers, uniqueRequest, responseType} = {}) {
     let cancelToken;
     if (uniqueRequest) {
       this.cancelRequest(uniqueRequest);
@@ -162,7 +162,7 @@ class Api {
    * @returns
    * @memberof Api
    */
-  async post(endPoint, {params, headers, uniqueRequest}) {
+  async post(endPoint, {params, headers, uniqueRequest} = {}) {
     let cancelToken;
     if (uniqueRequest) {
       this.cancelRequest(uniqueRequest);

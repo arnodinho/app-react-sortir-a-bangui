@@ -1,0 +1,38 @@
+apply plugin: 'com.android.library'
+// android.builtInKotlin=false in the app's gradle.properties: apply Kotlin
+// explicitly (same logic as the other RN libraries in this project).
+def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
+def builtInKotlin = (providers.gradleProperty("android.builtInKotlin").orNull ?: "true").toBoolean()
+if (agpMajor <= 8 || (agpMajor < 10 && !builtInKotlin)) {
+    apply plugin: 'org.jetbrains.kotlin.android'
+}
+apply plugin: 'com.facebook.react'
+
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+android {
+    namespace 'com.ayanga.sabcalendar'
+    compileSdkVersion safeExtGet('compileSdkVersion', 36)
+    defaultConfig {
+        minSdkVersion safeExtGet('minSdkVersion', 24)
+        targetSdkVersion safeExtGet('targetSdkVersion', 36)
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.facebook.react:react-android'
+}

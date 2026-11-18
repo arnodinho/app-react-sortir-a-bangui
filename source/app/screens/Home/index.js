@@ -23,6 +23,7 @@ import {
   SafeAreaView,
   ListItem,
   PaginationDots,
+  EventCard,
 } from '@components';
 import {BaseStyle, BaseColor, useTheme} from '@config';
 import * as Utils from '@utils';
@@ -30,7 +31,7 @@ import styles from './styles';
 import PagerView from 'react-native-pager-view';
 import {useSelector, useDispatch} from 'react-redux';
 import {homeSelect, settingSelect, userSelect} from '@selectors';
-import {wishListActions} from '@actions';
+import {wishListActions, eventActions} from '@actions';
 import {useTranslation} from 'react-i18next';
 import {FilterModel} from '@models';
 import {trackAddPlaceClick, trackAddPlaceLoginPrompt} from '@services/analytics';
@@ -48,6 +49,16 @@ export default function Home({navigation}) {
   const marginTopBanner = heightImageBanner - heightHeader + 10;
   const bannerPagerRef = useRef(null);
   const [bannerIndex, setBannerIndex] = useState(0);
+  const [events, setEvents] = useState(null);
+
+  // Next events for the Agenda section (not in Redux: always fetched fresh).
+  useEffect(() => {
+    dispatch(
+      eventActions.onLoadEvents({page: 1, per_page: 6}, res =>
+        setEvents(res.success ? res.list : []),
+      ),
+    );
+  }, [dispatch]);
 
   useEffect(() => {
     const count = home.sliders?.length ?? 0;
@@ -112,15 +123,38 @@ export default function Home({navigation}) {
    * @returns
    */
   const renderCategory = () => {
+    // 8 slots: the Agenda tile + up to 7 categories (6 + "more" if needed).
     let categories = home.categories;
-    let enableMore = categories?.length > 8;
+    let enableMore = categories?.length > 7;
     if (enableMore) {
-      categories = home.categories.slice(0, 7);
+      categories = home.categories.slice(0, 6);
     }
 
     if (categories?.length > 0) {
       return (
         <View style={styles.serviceContent}>
+          <TouchableOpacity
+            style={[
+              styles.serviceItem,
+              {width: (Utils.getWidthDevice() - 40) * 0.25},
+            ]}
+            onPress={() => navigation.navigate('EventList')}>
+            <View
+              style={[
+                styles.serviceCircleIcon,
+                {backgroundColor: colors.primary},
+              ]}>
+              <Icon
+                name="calendar-alt"
+                size={20}
+                color={BaseColor.whiteColor}
+                solid
+              />
+            </View>
+            <Text footnote numberOfLines={1}>
+              {t('agenda')}
+            </Text>
+          </TouchableOpacity>
           {categories.map((item, index) => {
             return (
               <TouchableOpacity
@@ -266,6 +300,48 @@ export default function Home({navigation}) {
           );
         }}
       />
+    );
+  };
+
+  /**
+   * Agenda: upcoming events, horizontally. Hidden when there are none.
+   */
+  const renderAgenda = () => {
+    if (events?.length === 0) {
+      return null;
+    }
+    return (
+      <View>
+        <View style={[styles.contentPopular, styles.sectionHeader]}>
+          <Text title3 semibold>
+            {t('agenda')}
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('EventList')}>
+            <Text body2 style={{color: colors.primary}}>
+              {t('see_all')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          contentContainerStyle={{paddingLeft: 5, paddingRight: 20}}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          data={events ?? [1, 2, 3]}
+          keyExtractor={(item, index) => (events ? item.id : `event${index}`)}
+          renderItem={({item}) => (
+            <EventCard
+              grid
+              loading={!events}
+              event={item}
+              style={{
+                marginLeft: 15,
+                width: Dimensions.get('window').width / 2.2,
+              }}
+              onPress={() => navigation.navigate('EventDetail', {id: item.id})}
+            />
+          )}
+        />
+      </View>
     );
   };
 
@@ -417,6 +493,7 @@ export default function Home({navigation}) {
             </TouchableOpacity>
           </View>
           {renderCategory()}
+          {renderAgenda()}
           <View style={styles.contentPopular}>
             <Text title3 semibold>
               {t('popular_location')}

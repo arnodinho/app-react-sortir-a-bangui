@@ -31,6 +31,9 @@ import ProfileEdit from '@screens/ProfileEdit';
 import ChangeLanguage from '@screens/ChangeLanguage';
 import ProductDetail from '@screens/ProductDetail';
 import AddPlace from '@screens/AddPlace';
+import EventList from '@screens/EventList';
+import EventDetail from '@screens/EventDetail';
+import AddEvent from '@screens/AddEvent';
 import {NotificationModel} from '@models';
 import SearchHistory from '../screens/SearchHistory';
 
@@ -100,6 +103,9 @@ export default function Main({navigation}) {
       <MainStack.Screen name="ChangeLanguage" component={ChangeLanguage} />
       <MainStack.Screen name="ProductDetail" component={ProductDetail} />
       <MainStack.Screen name="AddPlace" component={AddPlace} />
+      <MainStack.Screen name="EventList" component={EventList} />
+      <MainStack.Screen name="EventDetail" component={EventDetail} />
+      <MainStack.Screen name="AddEvent" component={AddEvent} />
     </MainStack.Navigator>
   );
 }
