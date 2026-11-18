@@ -31,7 +31,7 @@ export function* onSetup(action) {
 
 export function* onDeviceSync(action) {
   let device = {};
-  device.uniqueId = DeviceInfo.getUniqueId();
+  device.uniqueId = yield DeviceInfo.getUniqueId();
   device.deviceId = DeviceInfo.getDeviceId();
   device.bundleId = DeviceInfo.getBundleId();
   device.systemName = DeviceInfo.getSystemName();

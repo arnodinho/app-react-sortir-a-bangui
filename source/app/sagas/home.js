@@ -16,7 +16,15 @@ function* fetchHome(action) {
         locations: response.data?.locations?.map?.(item => {
           return new CategoryModel(item);
         }),
-        popular: response.data?.popular?.map?.(item => {
+        // The backend's home/init no longer returns `popular`; fall back to
+        // the recent places ranked by rating so the section isn't stuck on
+        // its loading placeholder.
+        popular: (
+          response.data?.popular ??
+          [...(response.data?.recent_posts ?? [])].sort(
+            (a, b) => (b?.rating_avg ?? 0) - (a?.rating_avg ?? 0),
+          )
+        ).map?.(item => {
           return new ProductModel(item);
         }),
         recents: response.data?.recent_posts?.map?.(item => {

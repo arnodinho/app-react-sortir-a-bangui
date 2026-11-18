@@ -83,3 +83,5 @@ source-expo/.expo/
 
 # macOS
 .DS_Store
+# Generated WordPress plugin zips (rebuilt from wordpress/mu-plugins)
+wordpress/dist/
