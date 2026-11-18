@@ -53,6 +53,10 @@ class Api {
         config.headers['Push-Token'] = device?.token;
         config.headers['Type'] = device?.deviceId;
         config.headers['Lang'] = i18n.language;
+        // API data is dynamic: never serve it (or a cached redirect) from the
+        // OS HTTP cache. See also AppDelegate.swift (cache purge at launch).
+        config.headers['Cache-Control'] = 'no-cache';
+        config.headers['Pragma'] = 'no-cache';
         config.timeout = 10000;
         return config;
       },

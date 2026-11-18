@@ -22,9 +22,11 @@ import ListItem from './ListItem';
 import ProfileDescription from './ProfileDescription';
 import RangeSlider from './RangeSlider';
 import PaginationDots from './PaginationDots';
+import PasswordRules from './PasswordRules';
 
 export {
   PaginationDots,
+  PasswordRules,
   TextInput,
   ListItem,
   CategoryFull,

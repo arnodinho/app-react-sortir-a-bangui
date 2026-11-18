@@ -1,14 +1,23 @@
 import React, {useState} from 'react';
 import {
   View,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   Alert,
 } from 'react-native';
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {BaseStyle, useTheme} from '@config';
 import {useTranslation} from 'react-i18next';
-import {Header, SafeAreaView, Icon, Text, Button, TextInput} from '@components';
+import {
+  Header,
+  SafeAreaView,
+  Icon,
+  Text,
+  Button,
+  TextInput,
+  PasswordRules,
+} from '@components';
+import {isPasswordValid} from '@utils/password';
 import * as api from '@api';
 import styles from './styles';
 
@@ -16,7 +25,7 @@ export default function ChangePassword({navigation}) {
   const {t} = useTranslation();
   const offsetKeyboard = Platform.select({
     ios: 0,
-    android: 20,
+    android: 0,
   });
 
   const [loading, setLoading] = useState(false);
@@ -47,12 +56,20 @@ export default function ChangePassword({navigation}) {
       });
       return;
     }
+    if (!isPasswordValid(password)) {
+      setSuccess({...success, password: false});
+      Alert.alert({
+        title: t('change_password'),
+        message: t('password_rule_error'),
+      });
+      return;
+    }
     setLoading(true);
     try {
       const params = {
         password,
       };
-      const response = await api.changePassword(params);
+      await api.changePassword(params);
       Alert.alert({
         type: 'success',
         title: t('change_password'),
@@ -62,7 +79,10 @@ export default function ChangePassword({navigation}) {
     } catch (error) {
       Alert.alert({
         title: t('change_password'),
-        message: error.data?.code ?? error.message,
+        message:
+          error.response?.data?.message ??
+          error.response?.data?.code ??
+          error.message,
       });
     }
     setLoading(false);
@@ -87,7 +107,7 @@ export default function ChangePassword({navigation}) {
         }}
       />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'android' ? 'height' : 'padding'}
+        behavior="padding"
         style={{flex: 1, justifyContent: 'center'}}
         keyboardVerticalOffset={offsetKeyboard}>
         <ScrollView
@@ -114,6 +134,7 @@ export default function ChangePassword({navigation}) {
               });
             }}
           />
+          <PasswordRules password={password} />
           <View style={styles.contentTitle}>
             <Text headline semibold>
               {t('re_password')}

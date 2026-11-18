@@ -1,15 +1,17 @@
 import React, {useState} from 'react';
-import {View, KeyboardAvoidingView, Platform} from 'react-native';
+import {View, Platform, Alert} from 'react-native';
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {BaseStyle, useTheme} from '@config';
 import {Header, SafeAreaView, Icon, TextInput, Button} from '@components';
 import {useTranslation} from 'react-i18next';
+import * as api from '@api';
 
 export default function ResetPassword({navigation}) {
   const {colors} = useTheme();
   const {t} = useTranslation();
   const offsetKeyboard = Platform.select({
     ios: 0,
-    android: 20,
+    android: 0,
   });
   const [email, seteEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,18 +20,43 @@ export default function ResetPassword({navigation}) {
   /**
    * call when action reset pass
    */
-  const onReset = () => {
-    if (email == '') {
+  const onReset = async () => {
+    const value = email.trim();
+    if (value == '') {
       setSuccess({
         ...success,
         email: false,
       });
-    } else {
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        navigation.navigate('SignIn');
-      }, 500);
+      return;
+    }
+    setLoading(true);
+    try {
+      // listar/v1/auth/reset_password answers HTTP 200 even on errors, with
+      // {success: true} or {code, message} / {success: false, msg}.
+      const response = await api.resetPassword({email: value});
+      setLoading(false);
+      if (response?.success) {
+        Alert.alert({
+          type: 'success',
+          title: t('reset_password'),
+          message: t('reset_password_sent'),
+          action: [{onPress: () => navigation.goBack()}],
+        });
+        return;
+      }
+      Alert.alert({
+        title: t('reset_password'),
+        message: response?.message ?? response?.msg ?? t('reset_password_error'),
+      });
+    } catch (error) {
+      setLoading(false);
+      Alert.alert({
+        title: t('reset_password'),
+        message:
+          error.response?.data?.message ??
+          error.response?.data?.msg ??
+          error.message,
+      });
     }
   };
 
@@ -52,7 +79,7 @@ export default function ResetPassword({navigation}) {
         }}
       />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'android' ? 'height' : 'padding'}
+        behavior="padding"
         keyboardVerticalOffset={offsetKeyboard}
         style={{flex: 1}}>
         <View
@@ -64,6 +91,9 @@ export default function ResetPassword({navigation}) {
           }}>
           <TextInput
             onChangeText={text => seteEmail(text)}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
             onFocus={() => {
               setSuccess({
                 ...success,

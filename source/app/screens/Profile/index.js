@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {View, ScrollView, TouchableOpacity} from 'react-native';
-import {BaseStyle, useTheme} from '@config';
+import {View, ScrollView, TouchableOpacity, Linking} from 'react-native';
+import {BaseStyle, BaseColor, BaseSetting, useTheme} from '@config';
 import {
   Header,
   SafeAreaView,
@@ -10,19 +10,19 @@ import {
   ProfileDetail,
 } from '@components';
 import styles from './styles';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {useTranslation} from 'react-i18next';
-import {authActions} from '@actions';
 import {userSelect} from '@selectors';
-import {getMessaging, deleteToken} from '@react-native-firebase/messaging';
+import useAccount from '@utils/useAccount';
 
 export default function Profile({navigation}) {
   const {colors} = useTheme();
   const {t} = useTranslation();
-  const dispatch = useDispatch();
   const user = useSelector(userSelect);
 
   const [loading, setLoading] = useState(false);
+
+  const {signOut, onDeleteAccount, deleting} = useAccount(navigation);
 
   /**
    * on Logout
@@ -30,8 +30,7 @@ export default function Profile({navigation}) {
    */
   const onLogout = () => {
     setLoading(true);
-    dispatch(authActions.onLogout());
-    deleteToken(getMessaging());
+    signOut();
   };
 
   return (
@@ -114,6 +113,29 @@ export default function Profile({navigation}) {
               style={{marginLeft: 5}}
               enableRTL={true}
             />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.profileItem,
+              {borderBottomColor: colors.border, borderBottomWidth: 1},
+            ]}
+            onPress={() => Linking.openURL(BaseSetting.privacyPolicyUrl)}>
+            <Text body1>{t('privacy_policy')}</Text>
+            <Icon
+              name="angle-right"
+              size={18}
+              color={colors.primary}
+              style={{marginLeft: 5}}
+              enableRTL={true}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.profileItem}
+            disabled={loading || deleting}
+            onPress={onDeleteAccount}>
+            <Text body1 style={{color: BaseColor.orangeColor}}>
+              {t('delete_account')}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

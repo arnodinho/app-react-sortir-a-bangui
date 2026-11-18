@@ -4,8 +4,10 @@ const endPoints = {
   login: 'index.php/wp-json/jwt-auth/v1/token',
   valid: 'index.php/wp-json/jwt-auth/v1/token/validate',
   signUp: 'index.php/wp-json/listar/v1/auth/register',
+  resetPassword: 'index.php/wp-json/listar/v1/auth/reset_password',
   userInfo: 'index.php/wp-json/listar/v1/auth/user',
   updateProfile: 'index.php/wp-json/wp/v2/users/me',
+  uploadMedia: 'index.php/wp-json/wp/v2/media',
   changePassword: 'index.php/wp-json/wp/v2/users/me',
   wishList: 'index.php/wp-json/listar/v1/wishlist/list',
   resetWishList: 'index.php/wp-json/listar/v1/wishlist/reset',
@@ -19,6 +21,13 @@ const endPoints = {
   saveWishList: 'index.php/wp-json/listar/v1/wishlist/save',
   setting: 'index.php/wp-json/listar/v1/setting/init',
   area: 'index.php/wp-json/listar/v1/location/list',
+  placeForm: 'index.php/wp-json/listar/v1/place/form',
+  placeSave: 'index.php/wp-json/listar/v1/place/save',
+  placeWp: 'index.php/wp-json/wp/v2/listar',
+  // Custom endpoint, served by wordpress/mu-plugins/sab-contact.php (repo root).
+  contact: 'index.php/wp-json/sab/v1/contact',
+  // Custom endpoint, served by wordpress/mu-plugins/sab-account-deletion.php.
+  deleteAccount: 'index.php/wp-json/sab/v1/account/delete',
 };
 
 export const fetchLogin = params => {
@@ -37,8 +46,88 @@ export const signUp = params => {
   return network.post(endPoints.signUp, {params});
 };
 
+/** Sends the WordPress "reset your password" e-mail. params: {email}. */
+export const resetPassword = params => {
+  return network.post(endPoints.resetPassword, {params});
+};
+
 export const updateProfile = params => {
   return network.post(endPoints.updateProfile, {params});
+};
+
+/**
+ * Upload a file to the WordPress media library. `file` is
+ * {uri, type, name}; resolves to the created attachment (with `id`).
+ */
+export const uploadMedia = file => {
+  const form = new FormData();
+  form.append('file', file);
+  return network.post(endPoints.uploadMedia, {
+    params: form,
+    headers: {'Content-Type': 'multipart/form-data'},
+  });
+};
+
+/**
+ * Set the current user's profile photo to a media attachment id.
+ * The Listar plugin reads `listar_user_photo` from the form body ($_POST):
+ * it is not a registered REST field, so a JSON body is silently ignored.
+ */
+export const updateProfilePhoto = attachmentId => {
+  return network.post(endPoints.updateProfile, {
+    params: `listar_user_photo=${encodeURIComponent(attachmentId)}`,
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+  });
+};
+
+const toFormBody = params =>
+  Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
+    )
+    .join('&');
+
+export const getPlaceForm = params => {
+  return network.get(endPoints.placeForm, {params});
+};
+
+/**
+ * Create (no post_id) or update (post_id) a place via the Listar plugin.
+ * Must be form-encoded: the plugin reads $_POST, a JSON body only saves the
+ * title/content. Caveats observed on the backend:
+ * - fields that are not sent keep their value, EXCEPT `content`, which is
+ *   wiped — always resend title + content;
+ * - `category`/`feature` are ignored here (use updatePlaceWp);
+ * - `gallery` is a comma-separated list of attachment ids;
+ * - sending latitude+longitude together fails with "Table
+ *   wp_listar_coordinates does not exist" (server misconfiguration), although
+ *   the coordinates ARE saved before the error.
+ * New places are always created with status "pending" (moderation).
+ */
+export const savePlace = params => {
+  return network.post(endPoints.placeSave, {
+    params: toFormBody(params),
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+  });
+};
+
+/**
+ * Standard WP REST update of a place: used for taxonomies
+ * (listar_category, listar_feature) and featured_media, which
+ * listar/v1/place/save does not handle.
+ */
+export const updatePlaceWp = (id, params) => {
+  return network.post(`${endPoints.placeWp}/${id}`, {params});
+};
+
+export const deleteAccount = () => {
+  return network.post(endPoints.deleteAccount, {});
+};
+
+export const sendContactMessage = params => {
+  return network.post(endPoints.contact, {params});
 };
 
 export const getUserInfo = params => {

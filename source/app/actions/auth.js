@@ -16,6 +16,18 @@ export const onEditProfile = (params, callback = () => {}) => {
   };
 };
 
+/**
+ * @param {{uri: string, type?: string, fileName?: string}} image asset
+ *   returned by react-native-image-picker
+ */
+export const onUploadAvatar = (image, callback = () => {}) => {
+  return {
+    type: actionTypes.ON_UPLOAD_AVATAR,
+    image,
+    callback,
+  };
+};
+
 export const onLogout = () => {
   return {
     type: actionTypes.LOGOUT,
