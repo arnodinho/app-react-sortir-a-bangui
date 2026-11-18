@@ -1,12 +1,12 @@
 import React, {useEffect} from 'react';
-import {StatusBar, Platform, useColorScheme} from 'react-native';
+import {StatusBar, useColorScheme} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {
   createStackNavigator,
   CardStyleInterpolators,
 } from '@react-navigation/stack';
 import {useTheme, BaseSetting} from '@config';
-import SplashScreen from 'react-native-splash-screen';
+import BootSplash from 'react-native-bootsplash';
 import i18n from 'i18next';
 import {initReactI18next} from 'react-i18next';
 import {useSelector} from 'react-redux';
@@ -33,7 +33,7 @@ const RootStack = createStackNavigator();
 export default function Navigator() {
   const language = useSelector(languageSelect);
 
-  const {theme, colors} = useTheme();
+  const {theme} = useTheme();
   const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function Navigator() {
       lng: BaseSetting.defaultLanguage,
       fallbackLng: BaseSetting.defaultLanguage,
     });
-    SplashScreen.hide();
+    BootSplash.hide({fade: true});
   }, []);
 
   useEffect(() => {
@@ -50,11 +50,11 @@ export default function Navigator() {
   }, [language]);
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      StatusBar.setBackgroundColor(colors.primary, true);
-    }
+    // StatusBar.setBackgroundColor was removed in RN 0.88 (Android is
+    // edge-to-edge only now, the status bar is no longer independently
+    // tinted) — only bar style (icon color) can still be set imperatively.
     StatusBar.setBarStyle(isDarkMode ? 'light-content' : 'dark-content', true);
-  }, [colors.primary, isDarkMode]);
+  }, [isDarkMode]);
 
   return (
     <NavigationContainer theme={theme}>

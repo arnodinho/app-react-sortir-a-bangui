@@ -8,6 +8,7 @@ import Modal from 'react-native-modal';
 import {useTranslation} from 'react-i18next';
 
 export default function FilterSort(props) {
+  props = {...FilterSort.defaultProps, ...props};
   const {colors} = useTheme();
   const {t} = useTranslation();
 

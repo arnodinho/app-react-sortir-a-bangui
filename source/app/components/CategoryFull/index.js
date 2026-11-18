@@ -8,6 +8,7 @@ import {Placeholder, Progressive, PlaceholderMedia} from 'rn-placeholder';
 import {useTranslation} from 'react-i18next';
 
 export default function CategoryFull(props) {
+  props = {...CategoryFull.defaultProps, ...props};
   const {t} = useTranslation();
   const {style, loading, image, icon, color, title, subtitle, onPress} = props;
   if (loading) {

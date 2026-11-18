@@ -31,3 +31,22 @@ export const onFetchCategory = (params, callback = () => {}) => {
     callback,
   };
 };
+
+export const onLoadPlaceForm = (callback = () => {}) => {
+  return {
+    type: actionTypes.GET_PLACE_FORM,
+    callback,
+  };
+};
+
+/**
+ * @param {object} params {title, content, category, address, phone, email,
+ *   website, latitude, longitude, images: [{uri, type, fileName}]}
+ */
+export const onCreatePlace = (params, callback = () => {}) => {
+  return {
+    type: actionTypes.CREATE_PLACE,
+    params,
+    callback,
+  };
+};

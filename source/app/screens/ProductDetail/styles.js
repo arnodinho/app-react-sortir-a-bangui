@@ -25,6 +25,20 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  titleLine: {
+    alignItems: 'flex-start',
+  },
+  title: {
+    flex: 1,
+    paddingRight: 15,
+  },
+  wishlist: {
+    width: 32,
+    height: 34, // ≈ first line of the title1 text
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
   rateLine: {
     marginTop: 5,
     flexDirection: 'row',
@@ -50,8 +64,11 @@ export default StyleSheet.create({
     borderColor: 'white',
     marginRight: 5,
   },
+  // Explicit size: with absoluteFillObject the native map view gets no frame
+  // under Fabric and stays blank.
   map: {
-    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
   },
   contentInforAction: {
     marginLeft: 10,

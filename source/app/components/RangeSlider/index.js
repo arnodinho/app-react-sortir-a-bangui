@@ -1,48 +1,47 @@
-import React, {useCallback} from 'react';
-import Slider from 'rn-range-slider';
+import React, {useCallback, useEffect, useState} from 'react';
+import Slider from '@react-native-assets/slider';
 import PropTypes from 'prop-types';
 
 import Thumb from './Thumb';
 import Rail from './Rail';
 import RailSelected from './RailSelected';
-import Notch from './Notch';
-import Label from './Label';
 
 import styles from './styles';
 
 export default function RangeSlider(props) {
-  const renderThumb = useCallback(() => <Thumb />, []);
-  const renderRail = useCallback(
-    () => <Rail color={props.color} />,
-    [props.color],
-  );
-  const renderRailSelected = useCallback(
-    () => <RailSelected color={props.selectionColor} />,
-    [props.selectionColor],
-  );
-  const renderLabel = useCallback(
-    value => <Label text={value} color={props.selectionColor} />,
-    [props.selectionColor],
-  );
-  const renderNotch = useCallback(
-    () => <Notch color={props.selectionColor} />,
-    [props.selectionColor],
+  props = {...RangeSlider.defaultProps, ...props};
+
+  const [range, setRange] = useState([props.min, props.max]);
+
+  useEffect(() => {
+    setRange([props.min, props.max]);
+  }, [props.min, props.max]);
+
+  const CustomThumb = useCallback(() => <Thumb />, []);
+
+  const CustomTrack = useCallback(
+    ({track, style}) =>
+      track === 'mid' ? (
+        <RailSelected color={props.selectionColor} style={style} />
+      ) : (
+        <Rail color={props.color} style={style} />
+      ),
+    [props.color, props.selectionColor],
   );
 
   return (
     <Slider
       style={[styles.slider, props.style]}
-      min={props.min}
-      max={props.max}
+      minimumValue={props.min}
+      maximumValue={props.max}
       step={1}
-      disableRange={false}
-      floatingLabel={true}
-      renderThumb={renderThumb}
-      renderRail={renderRail}
-      renderRailSelected={renderRailSelected}
-      renderLabel={renderLabel}
-      renderNotch={renderNotch}
-      onValueChanged={props.onValueChanged}
+      range={range}
+      CustomThumb={CustomThumb}
+      CustomTrack={CustomTrack}
+      onValueChange={([low, high]) => {
+        setRange([low, high]);
+        props.onValueChanged(low, high);
+      }}
     />
   );
 }

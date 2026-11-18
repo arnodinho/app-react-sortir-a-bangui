@@ -5,11 +5,19 @@ import {
   ScrollView,
   Share,
   Platform,
+  Linking,
 } from 'react-native';
-import {SafeAreaView, Text, Button, Image, Icon} from '@components';
+import {
+  SafeAreaView,
+  Text,
+  Button,
+  Image,
+  Icon,
+  PaginationDots,
+} from '@components';
 import styles from './styles';
-import Swiper from 'react-native-swiper';
-import {BaseColor, BaseStyle, Images, useTheme} from '@config';
+import PagerView from 'react-native-pager-view';
+import {BaseColor, BaseStyle, Images, useTheme, BaseSetting} from '@config';
 import {useTranslation} from 'react-i18next';
 
 export default function Walkthrough({navigation}) {
@@ -21,6 +29,7 @@ export default function Walkthrough({navigation}) {
   ]);
   const {colors} = useTheme();
   const {t} = useTranslation();
+  const [slideIndex, setSlideIndex] = useState(0);
   const linked =
     Platform.OS === 'android'
       ? 'https://play.google.com/store/apps/details?id=com.ayanga.sortirabangui'
@@ -32,13 +41,10 @@ export default function Walkthrough({navigation}) {
         style={BaseStyle.safeAreaView}
         contentContainerStyle={styles.contain}>
         <View style={styles.wrapper}>
-          <Swiper
-            dotStyle={{
-              backgroundColor: BaseColor.dividerColor,
-            }}
-            activeDotColor={colors.primary}
-            paginationStyle={styles.contentPage}
-            removeClippedSubviews={false}>
+          <PagerView
+            style={{flex: 1}}
+            initialPage={0}
+            onPageSelected={e => setSlideIndex(e.nativeEvent.position)}>
             {slide.map((item, index) => {
               return (
                 <View style={styles.slide} key={item.key}>
@@ -49,7 +55,14 @@ export default function Walkthrough({navigation}) {
                 </View>
               );
             })}
-          </Swiper>
+          </PagerView>
+          <PaginationDots
+            style={styles.contentPage}
+            count={slide.length}
+            activeIndex={slideIndex}
+            dotStyle={{backgroundColor: BaseColor.dividerColor}}
+            activeDotColor={colors.primary}
+          />
         </View>
         <Button
           full
@@ -69,6 +82,20 @@ export default function Walkthrough({navigation}) {
             onPress={() => navigation.navigate('AboutUs')}>
             <Text body1 grayColor>
               {t('A propos de nous')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{marginTop: 20}}
+            onPress={() => navigation.navigate('ContactUs')}>
+            <Text body1 grayColor>
+              {t('contact_us')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{marginTop: 20}}
+            onPress={() => Linking.openURL(BaseSetting.privacyPolicyUrl)}>
+            <Text body1 grayColor>
+              {t('privacy_policy')}
             </Text>
           </TouchableOpacity>
         </View>

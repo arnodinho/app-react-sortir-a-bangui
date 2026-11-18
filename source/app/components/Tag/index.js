@@ -6,6 +6,7 @@ import Text from '@components/Text';
 import styles from './styles';
 
 export default function Tag(props) {
+  props = {...Tag.defaultProps, ...props};
   const {colors} = useTheme();
   const {
     style,

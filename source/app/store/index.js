@@ -17,8 +17,14 @@ const persistConfig = {
 };
 const sagaMiddleware = createSagaMiddleware();
 
+// redux-logger prints the whole (large, persisted) state on every action.
+// On Android in dev that synchronous logging blocks the JS thread for seconds
+// (thousands of log lines at startup) and the app stops responding to taps.
+// Opt-in only: flip to true while debugging Redux.
+const ENABLE_REDUX_LOGGER = false;
+
 let middleware = [sagaMiddleware];
-if (process.env.NODE_ENV === 'development') {
+if (__DEV__ && ENABLE_REDUX_LOGGER) {
   middleware.push(logger);
 }
 

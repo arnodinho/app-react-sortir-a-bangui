@@ -1,0 +1,95 @@
+diff --git a/node_modules/react-native-pager-view/ios/PagerGestureObserver.swift b/node_modules/react-native-pager-view/ios/PagerGestureObserver.swift
+index 1bc5fef..192388a 100644
+--- a/node_modules/react-native-pager-view/ios/PagerGestureObserver.swift
++++ b/node_modules/react-native-pager-view/ios/PagerGestureObserver.swift
+@@ -93,10 +93,15 @@ final class PagerGestureObserver: NSObject {
+       candidates.append(recognizer)
+     }
+ 
+-    if #available(iOS 26.0, *),
+-      let recognizer = navigationController.interactiveContentPopGestureRecognizer
+-    {
+-      candidates.append(recognizer)
++    // interactiveContentPopGestureRecognizer (iOS 26+) isn't declared in the
++    // iOS 18.5 SDK bundled with the Xcode on this machine, so `#available`
++    // can't guard it here — the compiler needs the symbol to exist at all,
++    // not just be marked unavailable below a version. Locally patched out;
++    // falls back to interactivePopGestureRecognizer above. NOTE: lives in
++    // node_modules, will be lost on a fresh `npm install` — re-apply (or
++    // convert to patch-package) once Xcode ships an iOS 26 SDK.
++    if false {
++      let recognizer: UIGestureRecognizer? = nil
+     }
+ 
+     // react-native-screens installs its own swipe recognizers on the stack view
+diff --git a/node_modules/react-native-pager-view/ios/PagerView.swift b/node_modules/react-native-pager-view/ios/PagerView.swift
+index 56ec98a..87c8b45 100644
+--- a/node_modules/react-native-pager-view/ios/PagerView.swift
++++ b/node_modules/react-native-pager-view/ios/PagerView.swift
+@@ -32,25 +32,33 @@ struct PagerView: View {
+     PagerViewIOS15Compat.applyOverdrag(overdrag, to: collectionView)
+   }
+ 
++  // Hoisted out of `body` below: on this toolchain, the Swift type-checker
++  // times out inferring the modifier chain when these ternaries are inlined
++  // directly into it. Explicit types sidestep that (standard workaround for
++  // "unable to type-check this expression in reasonable time").
++  private var childRotation: Angle { isVertical ? .degrees(-90) : .zero }
++  private var pagerRotation: Angle { isVertical ? .degrees(90) : .zero }
++
+   var body: some View {
+     GeometryReader { proxy in
++      let frameWidth: CGFloat = isVertical ? proxy.size.height : proxy.size.width
++      let frameHeight: CGFloat = isVertical ? proxy.size.width : proxy.size.height
++      let offsetX: CGFloat = isVertical ? proxy.size.width : 0
++
+       TabView(selection: $props.currentPage) {
+         ForEach(Array(props.children.enumerated()), id: \.element.id) { index, child in
+           RepresentableView(view: child.view)
+             .frame(width: proxy.size.width, height: proxy.size.height)
+-            .rotationEffect(isVertical ? .degrees(-90) : .zero)
++            .rotationEffect(childRotation)
+             .tag(index)
+         }
+       }
+       .id(props.children.count)
+       .background(.clear)
+       .tabViewStyle(.page(indexDisplayMode: .never))
+-      .frame(
+-        width: isVertical ? proxy.size.height : proxy.size.width,
+-        height: isVertical ? proxy.size.width : proxy.size.height
+-      )
+-      .rotationEffect(isVertical ? .degrees(90) : .zero, anchor: .topLeading)
+-      .offset(x: isVertical ? proxy.size.width : 0)
++      .frame(width: frameWidth, height: frameHeight)
++      .rotationEffect(pagerRotation, anchor: .topLeading)
++      .offset(x: offsetX)
+       .ignoresSafeArea()
+       .environment(\.layoutDirection, props.layoutDirection.converted)
+       .introspect(.tabView(style: .page), on: .iOS(.v14...)) { collectionView in
+@@ -61,18 +69,13 @@ struct PagerView: View {
+         collectionView.showsVerticalScrollIndicator = false
+         collectionView.showsHorizontalScrollIndicator = false
+ 
+-        if #available(iOS 26.0, *) {
+-          // The top edge effect can obscure pages beneath transparent headers.
+-          collectionView.topEdgeEffect.isHidden = true
+-
+-          // The vertical pager rotates this horizontal scroll view by 90 degrees.
+-          // Native edge effects would rotate with it and cover the page sideways.
+-          if isVertical {
+-            collectionView.bottomEdgeEffect.isHidden = true
+-            collectionView.leftEdgeEffect.isHidden = true
+-            collectionView.rightEdgeEffect.isHidden = true
+-          }
+-        }
++        // topEdgeEffect/bottomEdgeEffect/leftEdgeEffect/rightEdgeEffect (iOS 26+)
++        // aren't declared in the iOS 18.5 SDK bundled with the Xcode on this
++        // machine, so `#available` can't guard them — the compiler needs the
++        // symbols to exist at all. Locally patched out (cosmetic only: hides
++        // the native scroll edge glow, which just won't be hidden here).
++        // NOTE: lives in node_modules, will be lost on a fresh `npm install`
++        // — re-apply (or convert to patch-package) once Xcode ships iOS 26.
+ 
+         if scrollDelegate.originalDelegate == nil {
+           scrollDelegate.originalDelegate = collectionView.delegate

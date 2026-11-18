@@ -114,24 +114,12 @@ export default function ProductDetail({navigation, route}) {
       ...route.params,
       reload: loadData,
     };
-    if (user) {
-      navigation.navigate({
-        name: 'Review',
-        params,
-      });
-    } else {
-      navigation.navigate({
-        name: 'SignIn',
-        params: {
-          success: () => {
-            navigation.navigate({
-              name: 'Review',
-              params,
-            });
-          },
-        },
-      });
-    }
+    // Reading reviews is open to everyone; adding one requires an account
+    // (handled in the Review screen).
+    navigation.navigate({
+      name: 'Review',
+      params,
+    });
   };
 
   /**
@@ -156,6 +144,17 @@ export default function ProductDetail({navigation, route}) {
    * Open action
    * @param {*} item
    */
+  // Places without coordinates would otherwise show a map of (0, 0), in the
+  // Gulf of Guinea.
+  const coordinate = {
+    latitude: parseFloat(product?.location?.latitude),
+    longitude: parseFloat(product?.location?.longitude),
+  };
+  const hasCoordinates =
+    Number.isFinite(coordinate.latitude) &&
+    Number.isFinite(coordinate.longitude) &&
+    !(coordinate.latitude === 0 && coordinate.longitude === 0);
+
   const onOpen = (type, title, link) => {
     Alert.alert({
       title: title,
@@ -206,7 +205,9 @@ export default function ProductDetail({navigation, route}) {
       return <ActivityIndicator size="small" color={colors.primary} />;
     }
     return (
-      <TouchableOpacity onPress={() => onLike(!like)}>
+      <TouchableOpacity
+        onPress={() => onLike(!like)}
+        hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
         {like ? (
           <Icon name="heart" color={colors.primaryLight} solid size={25} />
         ) : (
@@ -367,9 +368,16 @@ export default function ProductDetail({navigation, route}) {
     return (
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate('PreviewImage', {
-            gallery: product?.gallery,
-          });
+          // Places without a gallery still have a main image: preview that.
+          const gallery = product?.gallery?.length
+            ? product.gallery
+            : [product?.image].filter(
+                image => image?.full && image.full !== 'unknown',
+              );
+          if (!gallery.length) {
+            return;
+          }
+          navigation.navigate('PreviewImage', {gallery});
         }}>
         <ImageBackground
           source={{uri: product?.image?.full}}
@@ -478,11 +486,13 @@ export default function ProductDetail({navigation, route}) {
             paddingHorizontal: 20,
             marginBottom: 20,
           }}>
-          <View style={styles.lineSpace}>
-            <Text title1 semibold style={{paddingRight: 15}}>
+          {/* Long titles wrap within the remaining width; the favorite button
+              keeps a fixed size and stays top-right, aligned on the first line. */}
+          <View style={[styles.lineSpace, styles.titleLine]}>
+            <Text title1 semibold style={styles.title}>
               {product?.title}
             </Text>
-            {renderWishList()}
+            <View style={styles.wishlist}>{renderWishList()}</View>
           </View>
           <View style={styles.lineSpace}>
             <View>
@@ -502,7 +512,7 @@ export default function ProductDetail({navigation, route}) {
                   on
                 />
                 <Text footnote grayColor style={{marginLeft: 5}}>
-                  ({product?.numRate})
+                  ({t('comments_count', {count: Number(product?.numRate) || 0})})
                 </Text>
               </TouchableOpacity>
             </View>
@@ -603,28 +613,24 @@ export default function ProductDetail({navigation, route}) {
               </Text>
             </View>
           </View>
-          <View
-            style={{
-              height: 180,
-              paddingVertical: 20,
-            }}>
-            <MapView
-              provider={PROVIDER_GOOGLE}
-              style={styles.map}
-              region={{
-                latitude: parseFloat(product?.location?.latitude ?? 0.0),
-                longitude: parseFloat(product?.location?.longitude ?? 0.0),
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.009,
+          {hasCoordinates && (
+            <View
+              style={{
+                height: 180,
+                paddingVertical: 20,
               }}>
-              <Marker
-                coordinate={{
-                  latitude: parseFloat(product?.location?.latitude ?? 0.0),
-                  longitude: parseFloat(product?.location?.longitude ?? 0.0),
-                }}
-              />
-            </MapView>
-          </View>
+              <MapView
+                provider={PROVIDER_GOOGLE}
+                style={styles.map}
+                region={{
+                  ...coordinate,
+                  latitudeDelta: 0.005,
+                  longitudeDelta: 0.009,
+                }}>
+                <Marker coordinate={coordinate} />
+              </MapView>
+            </View>
+          )}
         </View>
         <Text
           title3

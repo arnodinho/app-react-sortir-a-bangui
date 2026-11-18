@@ -12,6 +12,7 @@ export default StyleSheet.create({
   wrapper: {
     width: '100%',
     height: 350,
+    position: 'relative',
   },
   contentPage: {
     bottom: 0,

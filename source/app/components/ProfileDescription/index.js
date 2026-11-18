@@ -4,6 +4,7 @@ import {Image, Text} from '@components';
 import styles from './styles';
 import PropTypes from 'prop-types';
 export default function ProfileDescription(props) {
+  props = {...ProfileDescription.defaultProps, ...props};
   const {style, image, styleThumb, onPress, name, subName, description} = props;
   return (
     <TouchableOpacity

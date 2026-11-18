@@ -1,17 +1,27 @@
 import React, {useState} from 'react';
-import {View, KeyboardAvoidingView, Platform, Alert} from 'react-native';
+import {View, Platform, Alert} from 'react-native';
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {BaseStyle, useTheme} from '@config';
-import {Header, SafeAreaView, Icon, Button, TextInput} from '@components';
+import {
+  Header,
+  SafeAreaView,
+  Icon,
+  Button,
+  TextInput,
+  PasswordRules,
+} from '@components';
+import {isPasswordValid} from '@utils/password';
 import styles from './styles';
 import * as api from '@api';
 import {useTranslation} from 'react-i18next';
+import {trackSignUp} from '@services/analytics';
 
-export default function SignUp({navigation}) {
+export default function SignUp({navigation, route}) {
   const {colors} = useTheme();
   const {t} = useTranslation();
   const offsetKeyboard = Platform.select({
     ios: 0,
-    android: 20,
+    android: 0,
   });
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -28,22 +38,30 @@ export default function SignUp({navigation}) {
    *
    */
   const onSignUp = async () => {
-    if (username == '' || email == '' || password == '') {
+    // iOS keyboard suggestions often append a trailing space, which makes the
+    // backend reject the email ("Email field is required.").
+    const cleanUsername = username.trim();
+    const cleanEmail = email.trim();
+    if (cleanUsername == '' || cleanEmail == '' || password == '') {
       setSuccess({
         ...success,
-        username: username != '' ? true : false,
-        email: email != '' ? true : false,
+        username: cleanUsername != '' ? true : false,
+        email: cleanEmail != '' ? true : false,
         password: password != '' ? true : false,
       });
+    } else if (!isPasswordValid(password)) {
+      setSuccess({...success, password: false});
+      Alert.alert({title: t('sign_up'), message: t('password_rule_error')});
     } else {
       setLoading(true);
       try {
         const params = {
-          username,
+          username: cleanUsername,
           password,
-          email,
+          email: cleanEmail,
         };
-        const response = await api.signUp(params);
+        await api.signUp(params);
+        trackSignUp(route.params?.source);
         Alert.alert({
           type: 'success',
           title: t('sign_up'),
@@ -53,7 +71,10 @@ export default function SignUp({navigation}) {
       } catch (error) {
         Alert.alert({
           title: t('sign_up'),
-          message: error.data?.code ?? error.message,
+          message:
+            error.response?.data?.message ??
+            error.response?.data?.code ??
+            error.message,
         });
       }
       setLoading(false);
@@ -79,13 +100,16 @@ export default function SignUp({navigation}) {
         }}
       />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'android' ? 'height' : 'padding'}
+        behavior="padding"
         keyboardVerticalOffset={offsetKeyboard}
         style={{flex: 1}}>
         <View style={styles.contain}>
           <TextInput
             onChangeText={text => setUsername(text)}
             placeholder={t('input_id')}
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="username"
             success={success.username}
             value={username}
             onFocus={() => {
@@ -100,6 +124,9 @@ export default function SignUp({navigation}) {
             onChangeText={text => setEmail(text)}
             placeholder={t('input_email')}
             keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="emailAddress"
             success={success.email}
             value={email}
             onFocus={() => {
@@ -113,6 +140,7 @@ export default function SignUp({navigation}) {
             style={{marginTop: 10}}
             onChangeText={text => setPassword(text)}
             secureTextEntry={true}
+            textContentType="newPassword"
             placeholder={t('input_password')}
             success={success.password}
             value={password}
@@ -123,6 +151,7 @@ export default function SignUp({navigation}) {
               });
             }}
           />
+          <PasswordRules password={password} />
           <Button
             full
             style={{marginTop: 20}}

@@ -7,6 +7,8 @@ export const BaseSetting = {
   appVersion: '1.0.6',
   domain: 'sab.yanga-consulting.com',
   protocol: 'https',
+  // Required by the Play Store / App Store: must stay publicly reachable.
+  privacyPolicyUrl: 'https://sab.yanga-consulting.com/politique-de-confidentialite/',
   defaultLanguage: 'fr',
   languageSupport: [
     'en',

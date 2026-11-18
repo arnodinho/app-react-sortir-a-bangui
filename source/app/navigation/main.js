@@ -6,7 +6,12 @@ import {useTranslation} from 'react-i18next';
 import {Icon} from '@components';
 import {userSelect} from '@selectors';
 import {useSelector} from 'react-redux';
-import messaging from '@react-native-firebase/messaging';
+import {
+  getMessaging,
+  onNotificationOpenedApp,
+  onMessage,
+  getInitialNotification,
+} from '@react-native-firebase/messaging';
 
 /* Bottom Screen */
 import Home from '@screens/Home';
@@ -25,6 +30,7 @@ import ChangePassword from '@screens/ChangePassword';
 import ProfileEdit from '@screens/ProfileEdit';
 import ChangeLanguage from '@screens/ChangeLanguage';
 import ProductDetail from '@screens/ProductDetail';
+import AddPlace from '@screens/AddPlace';
 import {NotificationModel} from '@models';
 import SearchHistory from '../screens/SearchHistory';
 
@@ -53,19 +59,23 @@ export default function Main({navigation}) {
       }
     };
 
-    messaging().onNotificationOpenedApp(remoteMessage => {
+    const messagingInstance = getMessaging();
+
+    onNotificationOpenedApp(messagingInstance, remoteMessage => {
       handleNotification(remoteMessage.data);
     });
-    messaging().onMessage(remoteMessage => {
+    onMessage(messagingInstance, remoteMessage => {
       handleNotification(remoteMessage.data);
     });
-    messaging()
-      .getInitialNotification()
+    getInitialNotification(messagingInstance)
       .then(remoteMessage => {
         if (remoteMessage) {
           handleNotification(remoteMessage.data);
         }
-      });
+      })
+      .catch(error =>
+        console.warn('FCM getInitialNotification failed', error?.message),
+      );
   }, [navigation]);
 
   return (
@@ -89,6 +99,7 @@ export default function Main({navigation}) {
       <MainStack.Screen name="ProfileEdit" component={ProfileEdit} />
       <MainStack.Screen name="ChangeLanguage" component={ChangeLanguage} />
       <MainStack.Screen name="ProductDetail" component={ProductDetail} />
+      <MainStack.Screen name="AddPlace" component={AddPlace} />
     </MainStack.Navigator>
   );
 }

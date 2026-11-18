@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import {useTheme} from '@config';
 
 export default function ListThumbSquare(props) {
+  props = {...ListThumbSquare.defaultProps, ...props};
   const {colors} = useTheme();
   const {
     style,

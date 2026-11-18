@@ -73,6 +73,109 @@ function* watchSaveComment() {
   yield takeEvery(actionTypes.SAVE_COMMENT, saveComment);
 }
 
+function* loadPlaceForm(action) {
+  try {
+    const response = yield api.getPlaceForm();
+    action.callback?.({success: true, data: response});
+  } catch (error) {
+    action.callback?.({
+      success: false,
+      message:
+        error.response?.data?.message ??
+        error.response?.data?.code ??
+        error.message,
+    });
+  }
+}
+
+/**
+ * Create a place. See api.savePlace for the backend quirks this works
+ * around; the order of calls matters.
+ */
+function* createPlace(action) {
+  const {
+    title,
+    content,
+    category,
+    location,
+    address,
+    phone,
+    email,
+    website,
+    latitude,
+    longitude,
+    images = [],
+  } = action.params;
+  try {
+    // 1. Photos go to the media library first (place/media_upload crashes
+    //    server-side).
+    const mediaIds = [];
+    for (const [index, image] of images.entries()) {
+      const media = yield api.uploadMedia({
+        uri: image.uri,
+        type: image.type ?? 'image/jpeg',
+        name: image.fileName ?? `place-${Date.now()}-${index}.jpg`,
+      });
+      mediaIds.push(media.id);
+    }
+
+    // 2. Create the place (no coordinates, see 4.).
+    const base = {title, content};
+    const created = yield api.savePlace({
+      ...base,
+      country: location?.country,
+      state: location?.state,
+      city: location?.city,
+      address,
+      phone,
+      email,
+      website,
+      gallery: mediaIds.length ? mediaIds.join(',') : undefined,
+    });
+    const postId = created?.post_id;
+    if (!postId) {
+      throw new Error(created?.message ?? 'place/save: missing post_id');
+    }
+
+    // 3. Category + main photo.
+    yield api.updatePlaceWp(postId, {
+      listar_category: category ? [category] : [],
+      ...(mediaIds.length ? {featured_media: mediaIds[0]} : {}),
+    });
+
+    // 4. Coordinates last and best-effort: the backend saves them but then
+    //    errors out (missing wp_listar_coordinates table).
+    if (latitude != null && longitude != null) {
+      try {
+        yield api.savePlace({post_id: postId, ...base, latitude, longitude});
+      } catch (error) {
+        console.warn(
+          'place/save coordinates',
+          error.response?.data?.message ?? error.message,
+        );
+      }
+    }
+
+    action.callback?.({success: true, postId});
+  } catch (error) {
+    action.callback?.({
+      success: false,
+      message:
+        error.response?.data?.message ??
+        error.response?.data?.code ??
+        error.message,
+    });
+  }
+}
+
+function* watchGetPlaceForm() {
+  yield takeEvery(actionTypes.GET_PLACE_FORM, loadPlaceForm);
+}
+
+function* watchCreatePlace() {
+  yield takeEvery(actionTypes.CREATE_PLACE, createPlace);
+}
+
 function* watchGetCategory() {
   yield takeEvery(actionTypes.GET_CATEGORY, loadCategory);
 }
@@ -83,5 +186,7 @@ export default function* authSagas() {
     watchLoadReview(),
     watchSaveComment(),
     watchGetCategory(),
+    watchGetPlaceForm(),
+    watchCreatePlace(),
   ]);
 }

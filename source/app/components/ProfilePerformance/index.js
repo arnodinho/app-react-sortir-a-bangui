@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import {useTranslation} from 'react-i18next';
 
 export default function ProfilePerformance(props) {
+  props = {...ProfilePerformance.defaultProps, ...props};
   const {t} = useTranslation();
   const renderValue = (type, value) => {
     switch (type) {

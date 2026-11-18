@@ -13,6 +13,7 @@ import {
 } from 'rn-placeholder';
 
 export default function CategoryIcon(props) {
+  props = {...CategoryIcon.defaultProps, ...props};
   const {t} = useTranslation();
   const {style, loading, icon, title, subtitle, color, onPress} = props;
   if (loading) {

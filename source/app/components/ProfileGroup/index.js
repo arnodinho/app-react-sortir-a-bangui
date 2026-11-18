@@ -6,6 +6,7 @@ import styles from './styles';
 import PropTypes from 'prop-types';
 
 export default function ProfileGroup(props) {
+  props = {...ProfileGroup.defaultProps, ...props};
   const {colors} = useTheme();
   const {
     style,

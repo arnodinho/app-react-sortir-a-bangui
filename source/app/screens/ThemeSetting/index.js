@@ -1,12 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import {
-  View,
-  TouchableOpacity,
-  FlatList,
-  StatusBar,
-  Platform,
-} from 'react-native';
+import {View, TouchableOpacity, FlatList} from 'react-native';
 import {ThemeSupport} from '@config';
 import {BaseStyle, useTheme} from '@config';
 import {Header, SafeAreaView, Icon, Text, Button} from '@components';
@@ -57,9 +51,6 @@ export default function ThemeSetting({navigation}) {
     const list = themeSupport.filter(item => item.selected);
     if (list.length > 0) {
       dispatch(applicationActions.changeTheme(list[0].theme));
-      if (Platform.OS === 'android') {
-        StatusBar.setBackgroundColor(list[0].light.colors.primary, true);
-      }
     }
   };
 

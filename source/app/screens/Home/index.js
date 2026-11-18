@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   ScrollView,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  Alert,
 } from 'react-native';
 import {
   Placeholder,
@@ -14,27 +15,52 @@ import {
   Progressive,
   PlaceholderMedia,
 } from 'rn-placeholder';
-import {Image, Text, Icon, Card, SafeAreaView, ListItem} from '@components';
+import {
+  Image,
+  Text,
+  Icon,
+  Card,
+  SafeAreaView,
+  ListItem,
+  PaginationDots,
+} from '@components';
 import {BaseStyle, BaseColor, useTheme} from '@config';
 import * as Utils from '@utils';
 import styles from './styles';
-import Swiper from 'react-native-swiper';
+import PagerView from 'react-native-pager-view';
 import {useSelector, useDispatch} from 'react-redux';
-import {homeSelect, settingSelect} from '@selectors';
+import {homeSelect, settingSelect, userSelect} from '@selectors';
 import {wishListActions} from '@actions';
 import {useTranslation} from 'react-i18next';
 import {FilterModel} from '@models';
+import {trackAddPlaceClick, trackAddPlaceLoginPrompt} from '@services/analytics';
 
-const deltaY = new Animated.Value(0);
 export default function Home({navigation}) {
+  const deltaY = useRef(new Animated.Value(0)).current;
   const {colors} = useTheme();
   const {t} = useTranslation();
   const dispatch = useDispatch();
   const setting = useSelector(settingSelect);
   const home = useSelector(homeSelect);
+  const user = useSelector(userSelect);
   const [heightHeader, setHeightHeader] = useState(Utils.heightHeader());
   const heightImageBanner = Utils.scaleWithPixel(180);
   const marginTopBanner = heightImageBanner - heightHeader + 10;
+  const bannerPagerRef = useRef(null);
+  const [bannerIndex, setBannerIndex] = useState(0);
+
+  useEffect(() => {
+    const count = home.sliders?.length ?? 0;
+    if (count < 2) {
+      return;
+    }
+    const timer = setInterval(() => {
+      const next = (bannerIndex + 1) % count;
+      bannerPagerRef.current?.setPage(next);
+      setBannerIndex(next);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, [bannerIndex, home.sliders?.length]);
 
   /**
    * update status wishlist
@@ -50,19 +76,26 @@ export default function Home({navigation}) {
   const renderBanner = () => {
     if (home.sliders?.length > 0) {
       return (
-        <Swiper
-          dotStyle={{
-            backgroundColor: colors.text,
-          }}
-          activeDotColor={colors.primary}
-          paginationStyle={styles.contentPage}
-          removeClippedSubviews={false}
-          autoplay={true}
-          autoplayTimeout={2}>
-          {home.sliders.map((item, index) => {
-            return <Image key={item} source={{uri: item}} style={{flex: 1}} />;
-          })}
-        </Swiper>
+        <View style={{flex: 1}}>
+          <PagerView
+            ref={bannerPagerRef}
+            style={{flex: 1}}
+            initialPage={0}
+            onPageSelected={e => setBannerIndex(e.nativeEvent.position)}>
+            {home.sliders.map((item, index) => (
+              <View key={item}>
+                <Image source={{uri: item}} style={{flex: 1}} />
+              </View>
+            ))}
+          </PagerView>
+          <PaginationDots
+            style={styles.contentPage}
+            count={home.sliders.length}
+            activeIndex={bannerIndex}
+            dotStyle={{backgroundColor: colors.text}}
+            activeDotColor={colors.primary}
+          />
+        </View>
       );
     }
 
@@ -278,6 +311,42 @@ export default function Home({navigation}) {
     });
   };
 
+  /**
+   * The "+" button is always visible: signed-out users are invited to sign in
+   * (or sign up from the sign-in screen) and land on AddPlace right after.
+   */
+  const onAddPlace = () => {
+    trackAddPlaceClick(!!user);
+    if (user) {
+      navigation.navigate('AddPlace');
+      return;
+    }
+    trackAddPlaceLoginPrompt('shown');
+    Alert.alert({
+      title: t('add_place'),
+      message: t('add_place_login_required'),
+      action: [
+        {text: t('later'), onPress: () => trackAddPlaceLoginPrompt('later')},
+        {
+          text: t('sign_in'),
+          onPress: () => {
+            trackAddPlaceLoginPrompt('sign_in');
+            // The Alert screen pops itself right after this callback: wait
+            // for that, or it would pop the SignIn screen instead.
+            setTimeout(
+              () =>
+                navigation.navigate('SignIn', {
+                  source: 'add_place',
+                  success: () => navigation.navigate('AddPlace'),
+                }),
+              350,
+            );
+          },
+        },
+      ],
+    });
+  };
+
   return (
     <View style={{flex: 1}}>
       <Animated.View
@@ -313,7 +382,9 @@ export default function Home({navigation}) {
           onContentSizeChange={() => {
             setHeightHeader(Utils.heightHeader());
           }}
-          scrollEventThrottle={8}>
+          scrollEventThrottle={8}
+          // Keep the last item reachable above the floating "+" button.
+          contentContainerStyle={{paddingBottom: 80}}>
           <View
             style={[
               styles.searchForm,
@@ -367,6 +438,14 @@ export default function Home({navigation}) {
           </View>
         </ScrollView>
       </SafeAreaView>
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={t('add_place')}
+        activeOpacity={0.8}
+        onPress={onAddPlace}
+        style={[styles.fab, {backgroundColor: colors.primary}]}>
+        <Icon name="plus" size={22} color={BaseColor.whiteColor} />
+      </TouchableOpacity>
     </View>
   );
 }

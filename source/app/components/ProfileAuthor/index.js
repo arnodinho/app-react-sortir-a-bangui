@@ -5,6 +5,7 @@ import styles from './styles';
 import PropTypes from 'prop-types';
 
 export default function ProfileAuthor(props) {
+  props = {...ProfileAuthor.defaultProps, ...props};
   const {
     style,
     image,

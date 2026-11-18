@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, ViewPropTypes, StyleSheet} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import PropTypes from 'prop-types';
 import {View as AnimatableView} from 'react-native-animatable';
 import StarButton from './StarButton';
@@ -20,8 +20,8 @@ const ANIMATION_TYPES = [
 const propTypes = {
   activeOpacity: PropTypes.number,
   animation: PropTypes.oneOf(ANIMATION_TYPES),
-  buttonStyle: ViewPropTypes.style,
-  containerStyle: ViewPropTypes.style,
+  buttonStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.number]),
+  containerStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.number]),
   disabled: PropTypes.bool,
   emptyStar: PropTypes.oneOfType([
     PropTypes.string,
@@ -48,7 +48,7 @@ const propTypes = {
   rating: PropTypes.number,
   reversed: PropTypes.bool,
   starSize: PropTypes.number,
-  starStyle: ViewPropTypes.style,
+  starStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.number]),
   selectedStar: PropTypes.func,
 };
 
@@ -76,6 +76,7 @@ const defaultProps = {
 };
 
 function StarRating(props) {
+  props = {...StarRating.defaultProps, ...props};
   const starRef = [];
   const {
     activeOpacity,

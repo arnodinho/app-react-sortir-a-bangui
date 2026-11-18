@@ -1,5 +1,11 @@
 import React, {useState, useEffect} from 'react';
-import {FlatList, RefreshControl, ActivityIndicator, View} from 'react-native';
+import {
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
+  View,
+  Alert,
+} from 'react-native';
 import {BaseStyle, useTheme} from '@config';
 import {
   Header,
@@ -12,13 +18,15 @@ import {
 } from '@components';
 import styles from './styles';
 import {useTranslation} from 'react-i18next';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {productActions} from '@actions';
+import {userSelect} from '@selectors';
 
 export default function Review({navigation, route}) {
   const {colors} = useTheme();
   const {t} = useTranslation();
   const dispatch = useDispatch();
+  const user = useSelector(userSelect);
 
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -58,13 +66,39 @@ export default function Review({navigation, route}) {
   };
 
   const onComment = () => {
-    params = {
+    const params = {
       ...route.params,
       reload: () => {
         loadData(true);
       },
     };
-    navigation.navigate({name: 'Feedback', params});
+    if (user) {
+      navigation.navigate({name: 'Feedback', params});
+      return;
+    }
+    // Signed-out: invite to sign in (or sign up from the sign-in screen), then
+    // land on the review form right after.
+    Alert.alert({
+      title: t('add_review'),
+      message: t('add_review_login_required'),
+      action: [
+        {text: t('later')},
+        {
+          text: t('sign_in'),
+          // The Alert screen pops itself right after this callback: wait for
+          // that, or it would pop the SignIn screen instead.
+          onPress: () =>
+            setTimeout(
+              () =>
+                navigation.navigate('SignIn', {
+                  source: 'review',
+                  success: () => navigation.navigate({name: 'Feedback', params}),
+                }),
+              350,
+            ),
+        },
+      ],
+    });
   };
 
   /**
