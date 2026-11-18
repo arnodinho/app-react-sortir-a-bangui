@@ -5,6 +5,7 @@ import {
   ScrollView,
   Share,
   Platform,
+  Linking,
 } from 'react-native';
 import {
   SafeAreaView,
@@ -16,7 +17,7 @@ import {
 } from '@components';
 import styles from './styles';
 import PagerView from 'react-native-pager-view';
-import {BaseColor, BaseStyle, Images, useTheme} from '@config';
+import {BaseColor, BaseStyle, Images, useTheme, BaseSetting} from '@config';
 import {useTranslation} from 'react-i18next';
 
 export default function Walkthrough({navigation}) {
@@ -81,6 +82,20 @@ export default function Walkthrough({navigation}) {
             onPress={() => navigation.navigate('AboutUs')}>
             <Text body1 grayColor>
               {t('A propos de nous')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{marginTop: 20}}
+            onPress={() => navigation.navigate('ContactUs')}>
+            <Text body1 grayColor>
+              {t('contact_us')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{marginTop: 20}}
+            onPress={() => Linking.openURL(BaseSetting.privacyPolicyUrl)}>
+            <Text body1 grayColor>
+              {t('privacy_policy')}
             </Text>
           </TouchableOpacity>
         </View>

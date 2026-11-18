@@ -1,16 +1,23 @@
 import React, {useState} from 'react';
-import {View, KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
+import {
+  View,
+  Platform,
+  ScrollView,
+  Alert,
+} from 'react-native';
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {BaseStyle, useTheme} from '@config';
 import {useTranslation} from 'react-i18next';
 import {Header, SafeAreaView, Icon, Text, Button, TextInput} from '@components';
 import styles from './styles';
+import * as api from '@api';
 
 export default function ContactUs({navigation}) {
   const {colors} = useTheme();
   const {t} = useTranslation();
   const offsetKeyboard = Platform.select({
     ios: 0,
-    android: 20,
+    android: 0,
   });
 
   const [firstname, setFirstname] = useState('');
@@ -25,48 +32,55 @@ export default function ContactUs({navigation}) {
     message: true,
   });
   const [loading, setLoading] = useState(false);
-  const [region] = useState({
-    latitude: 10.73902,
-    longitude: 106.704938,
-    latitudeDelta: 0.009,
-    longitudeDelta: 0.004,
-  });
 
   /**
    * @description Called when user sumitted form
    * @author Passion UI <passionui.com>
    * @date 2019-08-03
    */
-  const onSubmit = () => {
-    if (lastname == '' || firstname == '' || email == '' || message == '') {
+  const onSubmit = async () => {
+    const values = {
+      lastname: lastname.trim(),
+      firstname: firstname.trim(),
+      email: email.trim(),
+      message: message.trim(),
+    };
+    if (Object.values(values).some(v => v == '')) {
       setSuccess({
         ...success,
-        lastname: lastname != '' ? true : false,
-        firstname: firstname != '' ? true : false,
-        email: email != '' ? true : false,
-        message: message != '' ? true : false,
+        lastname: values.lastname != '',
+        firstname: values.firstname != '',
+        email: values.email != '',
+        message: values.message != '',
       });
-    } else {
-      fetch('https://bantu-dico.com/api/message', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstname: firstname,
-          lastname: lastname,
-          email: email,
-          site: Platform.OS === 'android' ? 'app-android-sab' : 'app-ios-sab',
-          content: message,
-        }),
-      }).then(response => response.json());
-
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(true);
-        navigation.goBack();
-      }, 500);
+      return;
+    }
+    setLoading(true);
+    try {
+      // Sent by e-mail by the WordPress backend (wordpress/mu-plugins/sab-contact.php).
+      await api.sendContactMessage({
+        firstname: values.firstname,
+        lastname: values.lastname,
+        email: values.email,
+        content: values.message,
+        site: Platform.OS === 'android' ? 'app-android-sab' : 'app-ios-sab',
+      });
+      setLoading(false);
+      Alert.alert({
+        type: 'success',
+        title: t('contact_us'),
+        message: t('contact_send_success'),
+        action: [{onPress: () => navigation.goBack()}],
+      });
+    } catch (error) {
+      setLoading(false);
+      Alert.alert({
+        title: t('contact_us'),
+        message:
+          error.response?.data?.message ??
+          error.response?.data?.code ??
+          error.message,
+      });
     }
   };
 
@@ -89,7 +103,7 @@ export default function ContactUs({navigation}) {
         }}
       />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'android' ? 'height' : 'padding'}
+        behavior="padding"
         keyboardVerticalOffset={offsetKeyboard}
         style={{flex: 1}}>
         <ScrollView
@@ -118,7 +132,9 @@ export default function ContactUs({navigation}) {
           <TextInput
             style={{marginTop: 10}}
             onChangeText={text => setEmail(text)}
-            placeholderTextColor={'gray'}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
             placeholder="Email"
             success={success.email}
             value={email}
