@@ -18,6 +18,29 @@ WordPress-backed listing/booking app, based on the "Listar" PassionUI template, 
   unless explicitly asked to port them.
 - `docs/` — a static HTML copy of the vendor's documentation page (`docs/index.html`), not
   something to edit.
+- `wordpress/` — server-side code for the WordPress backend that the app depends on but that is
+  **not** part of the Listar plugin (e.g. `mu-plugins/sab-contact.php`, the `sab/v1/contact`
+  endpoint behind the "Nous contacter" screen, which e-mails messages via `wp_mail`;
+  `mu-plugins/sab-account-deletion.php`, the Google Play account-deletion requirement: public page
+  `/supprimer-mon-compte/` + `sab/v1/account/delete` used by Profile → "Supprimer mon compte").
+  `mu-plugins/sab-password-policy.php` enforces the password rule (≥ 8 chars, one uppercase, one
+  digit) server-side on `listar/v1/auth/register`, `wp/v2/users/me` and the WordPress reset/profile
+  forms; the app mirrors it in `app/utils/password.js` (+ live checklist `components/PasswordRules`).
+  Keep both in sync. Kadence Security's own password requirements (strength, HIBP) are limited to
+  the Administrators + Editors user groups (app users are `author`). Gotcha: for these requirements
+  Kadence ignores the "enabled" checkbox — a requirement is active as soon as its user-group list
+  is non-empty. When Kadence does force a change, the token endpoint returns its HTML wp-login.php
+  interstitial (HTTP 200) instead of JSON — SignIn detects it and points to ResetPassword.
+  Deleting an account keeps all its places (any status) and their photos, reassigned to the admin
+  `SAB_DELETION_REASSIGN_LOGIN` (`joel`); only the profile, avatar and favorites are deleted. Note
+  `wp_delete_user()` does NOT delete `listar` posts (the post type doesn't support `author`).
+  **Client IP:** the site sits behind a reverse proxy; the server is configured so WordPress sees
+  the visitor's real IP. If logins suddenly get locked for *everyone*, the security plugins are
+  probably seeing the proxy's IP again — check the server's proxy/IP setup first. (Server and ops
+  details are intentionally kept out of this public repository.)
+  These plugins live in the separate WordPress project (local copy next to this repo, synced to
+  the server). Nothing here is deployed automatically: files must be copied to the server's
+  `wp-content/mu-plugins/` by hand.
 
 `source/` and `source-expo/app/` have near-identical internal structure (same folder names,
 same `@alias` names), so architecture notes below apply to both unless noted.
@@ -41,9 +64,10 @@ npm run lint                # eslint .
 
 `--legacy-peer-deps` works around a reproducible npm/arborist crash (`TypeError: Cannot read
 properties of null (reading 'children')`) hit on a clean install of this dependency tree with
-npm ≥11; it is not optional. `postinstall` runs `patch-package`, which reapplies two patches
-from `patches/` (`react-native-maps`, `react-native-pager-view`) that are lost on every fresh
-`npm install`/`ci` — if you change either package's version, regenerate the patch with
+npm ≥11; it is not optional. `postinstall` runs `patch-package`, which reapplies the patches
+from `patches/` (`react-native-maps`, `react-native-pager-view`, `react-native-image-picker`)
+that are lost on every fresh
+`npm install`/`ci` — if you change one of those packages' version, regenerate the patch with
 `npx patch-package <pkg> --exclude "android/build"` (the exclude matters: without it the patch
 picks up stray compiled Gradle build artifacts).
 
@@ -51,6 +75,12 @@ iOS also needs CocoaPods via the pinned Bundler setup: `bundle install` once, th
 `bundle exec pod install` from `ios/` (or let `npm run ios` do it).
 
 To run a single Jest test file/pattern: `npx jest path/to/file.test.js` (or `-t "test name"`).
+
+Release App Bundle for the Play Store (JDK 17, from `android/`): `./gradlew bundleRelease` →
+`app/build/outputs/bundle/release/app-release.aab`, signed with `sab-keystore`. **Gotcha:** Gradle can
+wrongly mark `:app:createBundleReleaseJsAndAssets` as UP-TO-DATE after JS/translation-only changes and
+ship a stale JS bundle — run `./gradlew :app:createBundleReleaseJsAndAssets --rerun` first. Bump
+`versionCode` in `android/app/build.gradle` for every upload.
 
 Producing the JS bundle manually (e.g. for release builds without a running Metro server):
 ```bash
@@ -126,6 +156,15 @@ by the `auth`/`config` Redux state.
 (`@react-native-firebase/messaging`) that navigate to `ProductDetail` on notification tap, using
 `NotificationModel` from `@models` to parse the payload.
 
+### Alerts: `Alert.alert` is globally overridden
+`app/screens/Loading/index.js` reassigns `Alert.alert` (from `react-native`) at startup to
+navigate to the app's own `Alert` screen (`app/screens/Alert`). The override takes a **single
+object** — `Alert.alert({title, message, type: 'success'|'warning', action: [{text, onPress}],
+option})` — and renders at most two buttons (default label `t('close')`). The positional RN
+signature `Alert.alert(title, message, buttons)` does **not** work anywhere in the app (it
+renders an empty dialog with a "Fermer" button). For more than two choices use
+`ActionSheetIOS` on iOS (see `ProfileEdit`'s avatar chooser).
+
 ### Models
 `app/models` wraps raw API responses in classes (e.g. `NotificationModel`) rather than passing
 plain objects/DTOs around — check for an existing model before adding new remote-data handling.
@@ -175,7 +214,35 @@ things that fell out of that migration and aren't obvious from reading the code 
   Firebase); `react-native-maps`' Google Maps subspec only ships a static xcframework, which
   CocoaPods forbids a dynamic pod from depending on — fixed via the `patches/` podspec patch
   (`s.static_framework = true`), not a Podfile hook (CocoaPods validates static/dynamic linkage
-  before `post_install` runs).
+  before `post_install` runs). Same root cause for `react-native-image-picker`: its podspec omits
+  `MobileCoreServices`/`UniformTypeIdentifiers` from `s.frameworks`, which only breaks under dynamic
+  framework linkage (undefined `_UTType*` symbols) — fixed by the `patches/` podspec patch.
+- **Profile photo upload** (`ProfileEdit` → `ON_UPLOAD_AVATAR` saga): two calls — multipart upload
+  to `wp/v2/media`, then `POST wp/v2/users/me` with `listar_user_photo=<attachment id>` sent
+  **form-encoded**. The Listar plugin reads that field from `$_POST`; it is not a registered REST
+  field, so a JSON body is accepted with HTTP 200 but silently ignored.
+- **Place creation** (Home "+" button → `AddPlace` → `CREATE_PLACE` saga in `sagas/product.js`):
+  the backend contract is quirky and undocumented — see the comments on `api.savePlace`. In short:
+  photos via `wp/v2/media` (Listar's `place/media_upload` fatals server-side), `place/save`
+  form-encoded (resend title+content on every call or content is wiped; `gallery` = comma-separated
+  ids), category + `featured_media` via `wp/v2/listar/{id}`, coordinates in a last best-effort
+  `place/save` because the server lacks the `wp_listar_coordinates` table (coords are saved, then
+  it errors with HTTP 400). New places are always `pending` (moderated in wp-admin).
+- **Analytics** (`@react-native-firebase/analytics`): all calls go through `app/services/analytics.js`
+  (fire-and-forget, never throws). Sign-up funnel events: `add_place_click {signed_in}`,
+  `add_place_login_prompt {action: shown|sign_in|later}`, `login`/`sign_up {method, source}` where
+  `source` (`add_place`|`other`) is passed as a navigation param Home → SignIn → SignUp, and
+  `place_submitted {with_photos}`. iOS links Analytics **without IDFA**
+  (`$RNFirebaseAnalyticsWithoutAdIdSupport = true` in the Podfile) to avoid the ATT prompt. Debug:
+  `adb shell setprop debug.firebase.analytics.app com.ayanga.sortirabangui` (Android) or launch arg
+  `-FIRDebugEnabled` (iOS), then Firebase console → DebugView.
+- **Keyboard handling** (`react-native-keyboard-controller`, `<KeyboardProvider>` in `app/index.js`):
+  Android runs edge-to-edge (`edgeToEdgeEnabled=true`), so `adjustResize` no longer resizes the
+  window and RN's own `KeyboardAvoidingView` lags/sticks for seconds after the keyboard hides. Use the
+  library's components instead: its `KeyboardAvoidingView` (`behavior="padding"` on both platforms,
+  offset 0) for short forms; for long forms (AddPlace, ProfileEdit) `KeyboardAwareScrollView` +
+  footer in `KeyboardStickyView`, with `bottomOffset` ≈ footer height — never nest
+  KeyboardAwareScrollView inside a KeyboardAvoidingView (double compensation hides the field).
 - **Signing continuity**: the same Play Store signing key (`android/sab-keystore`) and the same
   Firebase configs (`google-services.json`, `GoogleService-Info.plist`) carried over unchanged —
   this is still the same shipped app (`com.ayanga.sortirabangui`), not a new one.
