@@ -3,7 +3,7 @@
  * Plugin Name: Sortir à Bangui – Agenda (événements)
  * Description: Type de contenu « sab_event » + API REST sab/v1/events utilisée par l'onglet
  *              Agenda de l'application mobile (liste, détail, proposition d'un événement).
- * Version:     0.2.1
+ * Version:     0.2.2
  *
  * Installation : copier ce fichier dans wp-content/mu-plugins/ (chargé automatiquement).
  *
@@ -69,6 +69,81 @@ add_action('init', function () {
     ]);
 });
 
+/** Centre par défaut de la carte de l'admin (Bangui). */
+const SAB_EVENT_MAP_CENTER = [4.3947, 18.5582];
+
+// Carte Leaflet (fond OpenStreetMap) dans l'écran d'édition d'un événement.
+add_action('admin_enqueue_scripts', function ($hook) {
+    $screen = get_current_screen();
+    if (!in_array($hook, ['post.php', 'post-new.php'], true) || !$screen || $screen->post_type !== SAB_EVENT_POST_TYPE) {
+        return;
+    }
+    wp_enqueue_style('leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', [], '1.9.4');
+    wp_enqueue_script('leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], '1.9.4', true);
+    wp_add_inline_script('leaflet', sab_event_map_js(), 'after');
+});
+
+function sab_event_map_js()
+{
+    $center = wp_json_encode(SAB_EVENT_MAP_CENTER);
+    return <<<JS
+(function () {
+    var el = document.getElementById('sab-event-map');
+    var lat = document.getElementById('sab_event_latitude');
+    var lng = document.getElementById('sab_event_longitude');
+    if (!el || !lat || !lng || !window.L) return;
+
+    function current() {
+        var a = parseFloat(String(lat.value).replace(',', '.'));
+        var b = parseFloat(String(lng.value).replace(',', '.'));
+        return isFinite(a) && isFinite(b) ? [a, b] : null;
+    }
+    var start = current();
+    var map = L.map(el).setView(start || {$center}, start ? 16 : 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    var marker = null;
+    function place(latlng, pan) {
+        if (!marker) {
+            marker = L.marker(latlng, {draggable: true}).addTo(map);
+            marker.on('dragend', function () { fill(marker.getLatLng()); });
+        } else {
+            marker.setLatLng(latlng);
+        }
+        if (pan) map.panTo(latlng);
+    }
+    function fill(p) {
+        lat.value = p.lat.toFixed(6);
+        lng.value = p.lng.toFixed(6);
+    }
+    if (start) place(start, false);
+
+    map.on('click', function (e) { place(e.latlng, false); fill(e.latlng); });
+    [lat, lng].forEach(function (input) {
+        input.addEventListener('change', function () {
+            var p = current();
+            if (p) place(p, true);
+        });
+    });
+    document.getElementById('sab-event-map-clear').addEventListener('click', function (e) {
+        e.preventDefault();
+        lat.value = lng.value = '';
+        if (marker) { map.removeLayer(marker); marker = null; }
+    });
+    // La metabox peut être repliée/redimensionnée : recalculer la taille.
+    setTimeout(function () { map.invalidateSize(); }, 300);
+    document.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('#sab_event_details .handlediv, #sab_event_details .hndle')) {
+            setTimeout(function () { map.invalidateSize(); }, 50);
+        }
+    });
+})();
+JS;
+}
+
 add_action('add_meta_boxes', function () {
     add_meta_box('sab_event_details', "Détails de l'événement", 'sab_event_render_metabox',
         SAB_EVENT_POST_TYPE, 'normal', 'high');
@@ -106,6 +181,12 @@ function sab_event_render_metabox(WP_Post $post)
             $key === 'sab_event_start' ? ' required' : ''
         );
     }
+    echo '<tr><th>Position sur la carte</th><td>'
+        . '<div id="sab-event-map" style="height:360px;max-width:720px;border:1px solid #c3c4c7;border-radius:4px"></div>'
+        . '<p class="description">Cliquez sur la carte pour placer le lieu (l\'épingle peut ensuite être déplacée) : '
+        . 'latitude et longitude se remplissent automatiquement. '
+        . '<a href="#" id="sab-event-map-clear">Effacer la position</a></p>'
+        . '</td></tr>';
     echo '</table>';
 }
 
