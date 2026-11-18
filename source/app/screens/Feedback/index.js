@@ -2,10 +2,11 @@ import React, {useState} from 'react';
 import {
   View,
   ScrollView,
-  KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {BaseStyle, BaseColor, useTheme} from '@config';
 import {
   Image,
@@ -29,7 +30,7 @@ export default function Feedback({navigation, route}) {
   const user = useSelector(userSelect);
   const offsetKeyboard = Platform.select({
     ios: 0,
-    android: 20,
+    android: 0,
   });
   const [loading, setLoading] = useState(false);
   const [rate, setRate] = useState(5);
@@ -58,9 +59,30 @@ export default function Feedback({navigation, route}) {
       };
       setLoading(true);
       dispatch(
-        productActions.onFeekBack(params, item => {
-          route.params.reload?.();
-          navigation.goBack();
+        productActions.onFeekBack(params, response => {
+          setLoading(false);
+          // Success: wp/v2/comments returns the created comment ({id, status}).
+          // Failure: the saga passes the axios error response or a string.
+          if (!response?.id) {
+            Alert.alert({
+              title: t('feedback'),
+              message:
+                response?.data?.message ??
+                response?.data?.code ??
+                String(response ?? t('comment_send_error')),
+            });
+            return;
+          }
+          route.params?.reload?.();
+          // Comments are held for moderation (WordPress "comment_moderation");
+          // only moderators' own comments are published right away.
+          const published = response.status === 'approved';
+          Alert.alert({
+            type: 'success',
+            title: t('feedback'),
+            message: t(published ? 'comment_published' : 'comment_pending'),
+            action: [{onPress: () => navigation.goBack()}],
+          });
         }),
       );
     }
@@ -85,7 +107,7 @@ export default function Feedback({navigation, route}) {
         }}
       />
       <KeyboardAvoidingView
-        behavior={Platform.OS == 'android' ? 'height' : 'padding'}
+        behavior="padding"
         keyboardVerticalOffset={offsetKeyboard}
         style={{flex: 1}}>
         <ScrollView contentContainerStyle={{alignItems: 'center', padding: 20}}>

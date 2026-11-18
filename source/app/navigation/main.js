@@ -30,6 +30,7 @@ import ChangePassword from '@screens/ChangePassword';
 import ProfileEdit from '@screens/ProfileEdit';
 import ChangeLanguage from '@screens/ChangeLanguage';
 import ProductDetail from '@screens/ProductDetail';
+import AddPlace from '@screens/AddPlace';
 import {NotificationModel} from '@models';
 import SearchHistory from '../screens/SearchHistory';
 
@@ -66,11 +67,15 @@ export default function Main({navigation}) {
     onMessage(messagingInstance, remoteMessage => {
       handleNotification(remoteMessage.data);
     });
-    getInitialNotification(messagingInstance).then(remoteMessage => {
-      if (remoteMessage) {
-        handleNotification(remoteMessage.data);
-      }
-    });
+    getInitialNotification(messagingInstance)
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          handleNotification(remoteMessage.data);
+        }
+      })
+      .catch(error =>
+        console.warn('FCM getInitialNotification failed', error?.message),
+      );
   }, [navigation]);
 
   return (
@@ -94,6 +99,7 @@ export default function Main({navigation}) {
       <MainStack.Screen name="ProfileEdit" component={ProfileEdit} />
       <MainStack.Screen name="ChangeLanguage" component={ChangeLanguage} />
       <MainStack.Screen name="ProductDetail" component={ProductDetail} />
+      <MainStack.Screen name="AddPlace" component={AddPlace} />
     </MainStack.Navigator>
   );
 }

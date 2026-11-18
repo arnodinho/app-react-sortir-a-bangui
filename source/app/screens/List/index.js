@@ -186,15 +186,44 @@ export default function List({navigation, route}) {
    * onChange view style
    *
    */
+  /**
+   * Coordinates of a place, or null when missing/invalid (parseFloat gives
+   * NaN, which `?? 0` doesn't catch, and a NaN region/marker breaks the map).
+   */
+  const coordinateOf = item => {
+    const latitude = parseFloat(item?.location?.latitude);
+    const longitude = parseFloat(item?.location?.longitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return null;
+    }
+    if (latitude === 0 && longitude === 0) {
+      return null;
+    }
+    return {latitude, longitude};
+  };
+
+  const regionAround = coordinate => ({
+    ...coordinate,
+    latitudeDelta: 0.009,
+    longitudeDelta: 0.004,
+  });
+
   const onChangeMapView = () => {
     Utils.enableExperimental();
-    if (!mapView && screen?.list.length > 0) {
-      setRegion({
-        latitude: parseFloat(screen?.list?.[0].location.latitude) ?? 0.0,
-        longitude: parseFloat(screen?.list?.[0].location.longitude) ?? 0.0,
-        latitudeDelta: 0.009,
-        longitudeDelta: 0.004,
-      });
+    if (!mapView) {
+      // Center on the first place that has coordinates, else on Bangui.
+      const first = (screen?.list ?? []).map(coordinateOf).find(Boolean);
+      setRegion(
+        first
+          ? regionAround(first)
+          : {
+              latitude: 4.3619,
+              longitude: 18.5829,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
+            },
+      );
+      setActive(0);
     }
     setMapView(!mapView);
   };
@@ -235,24 +264,12 @@ export default function List({navigation, route}) {
    * on Review action
    */
   const onReview = item => {
-    if (user) {
-      navigation.navigate('Review', {
-        id: item.id,
-        reload: loadData,
-      });
-    } else {
-      navigation.navigate({
-        name: 'SignIn',
-        params: {
-          success: () => {
-            navigation.navigate({
-              id: item.id,
-              reload: loadData,
-            });
-          },
-        },
-      });
-    }
+    // Reading reviews is open to everyone; adding one requires an account
+    // (handled in the Review screen).
+    navigation.navigate('Review', {
+      id: item.id,
+      reload: loadData,
+    });
   };
 
   /**
@@ -843,14 +860,15 @@ export default function List({navigation, route}) {
       <View style={{flex: 1}}>
         <MapView provider={PROVIDER_GOOGLE} style={styles.map} region={region}>
           {screen?.list?.map?.((item, index) => {
+            const coordinate = coordinateOf(item);
+            if (!coordinate) {
+              return null;
+            }
             return (
               <Marker
                 onPress={e => onSelectLocation(e.nativeEvent.coordinate)}
                 key={item.id}
-                coordinate={{
-                  latitude: parseFloat(item.location?.latitude) ?? 0.0,
-                  longitude: parseFloat(item.location.longitude) ?? 0.0,
-                }}>
+                coordinate={coordinate}>
                 <View
                   style={[
                     styles.iconLocation,
@@ -904,20 +922,16 @@ export default function List({navigation, route}) {
             )}
             style={{width: viewportWidth, height: Utils.scaleWithPixel(110)}}
             itemSize={getViewPort(75) + getViewPort(2) * 2}
-            defaultIndex={1}
+            defaultIndex={0}
             layout={{type: 'parallax', scale: 0.95, adjacentScale: 0.85}}
             loop={true}
             autoplay={false}
             onSnapToItem={index => {
               setActive(index);
-              setRegion({
-                latitudeDelta: 0.009,
-                longitudeDelta: 0.004,
-                latitude:
-                  parseFloat(screen?.list?.[index]?.location?.latitude) ?? 0.0,
-                longitude:
-                  parseFloat(screen?.list[index]?.location?.longitude) ?? 0.0,
-              });
+              const coordinate = coordinateOf(screen?.list?.[index]);
+              if (coordinate) {
+                setRegion(regionAround(coordinate));
+              }
             }}
           />
         </View>

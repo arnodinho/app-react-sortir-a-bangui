@@ -20,8 +20,11 @@ export default StyleSheet.create({
     right: 0,
     backgroundColor: BaseColor.whiteColor,
   },
+  // Explicit size: with absoluteFillObject the native map view gets no frame
+  // under Fabric and stays blank.
   map: {
-    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
   },
   iconLocation: {
     width: 28,

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  Alert,
 } from 'react-native';
 import {
   Placeholder,
@@ -28,10 +29,11 @@ import * as Utils from '@utils';
 import styles from './styles';
 import PagerView from 'react-native-pager-view';
 import {useSelector, useDispatch} from 'react-redux';
-import {homeSelect, settingSelect} from '@selectors';
+import {homeSelect, settingSelect, userSelect} from '@selectors';
 import {wishListActions} from '@actions';
 import {useTranslation} from 'react-i18next';
 import {FilterModel} from '@models';
+import {trackAddPlaceClick, trackAddPlaceLoginPrompt} from '@services/analytics';
 
 export default function Home({navigation}) {
   const deltaY = useRef(new Animated.Value(0)).current;
@@ -40,6 +42,7 @@ export default function Home({navigation}) {
   const dispatch = useDispatch();
   const setting = useSelector(settingSelect);
   const home = useSelector(homeSelect);
+  const user = useSelector(userSelect);
   const [heightHeader, setHeightHeader] = useState(Utils.heightHeader());
   const heightImageBanner = Utils.scaleWithPixel(180);
   const marginTopBanner = heightImageBanner - heightHeader + 10;
@@ -308,6 +311,42 @@ export default function Home({navigation}) {
     });
   };
 
+  /**
+   * The "+" button is always visible: signed-out users are invited to sign in
+   * (or sign up from the sign-in screen) and land on AddPlace right after.
+   */
+  const onAddPlace = () => {
+    trackAddPlaceClick(!!user);
+    if (user) {
+      navigation.navigate('AddPlace');
+      return;
+    }
+    trackAddPlaceLoginPrompt('shown');
+    Alert.alert({
+      title: t('add_place'),
+      message: t('add_place_login_required'),
+      action: [
+        {text: t('later'), onPress: () => trackAddPlaceLoginPrompt('later')},
+        {
+          text: t('sign_in'),
+          onPress: () => {
+            trackAddPlaceLoginPrompt('sign_in');
+            // The Alert screen pops itself right after this callback: wait
+            // for that, or it would pop the SignIn screen instead.
+            setTimeout(
+              () =>
+                navigation.navigate('SignIn', {
+                  source: 'add_place',
+                  success: () => navigation.navigate('AddPlace'),
+                }),
+              350,
+            );
+          },
+        },
+      ],
+    });
+  };
+
   return (
     <View style={{flex: 1}}>
       <Animated.View
@@ -343,7 +382,9 @@ export default function Home({navigation}) {
           onContentSizeChange={() => {
             setHeightHeader(Utils.heightHeader());
           }}
-          scrollEventThrottle={8}>
+          scrollEventThrottle={8}
+          // Keep the last item reachable above the floating "+" button.
+          contentContainerStyle={{paddingBottom: 80}}>
           <View
             style={[
               styles.searchForm,
@@ -397,6 +438,14 @@ export default function Home({navigation}) {
           </View>
         </ScrollView>
       </SafeAreaView>
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={t('add_place')}
+        activeOpacity={0.8}
+        onPress={onAddPlace}
+        style={[styles.fab, {backgroundColor: colors.primary}]}>
+        <Icon name="plus" size={22} color={BaseColor.whiteColor} />
+      </TouchableOpacity>
     </View>
   );
 }

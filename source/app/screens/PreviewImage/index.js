@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {View, FlatList, TouchableOpacity} from 'react-native';
 import {BaseStyle, BaseColor, useTheme} from '@config';
 import PagerView from 'react-native-pager-view';
@@ -15,8 +15,9 @@ import styles from './styles';
 export default function PreviewImage({navigation, route}) {
   const {colors} = useTheme();
 
-  let flatListRef = null;
-  let swiperRef = null;
+  // Refs must survive re-renders (plain `let` variables were reset to null).
+  const flatListRef = useRef(null);
+  const swiperRef = useRef(null);
 
   const images = route.params?.gallery ?? [];
   const [indexSelected, setIndexSelected] = useState(0);
@@ -28,10 +29,14 @@ export default function PreviewImage({navigation, route}) {
    */
   const onSelect = value => {
     setIndexSelected(value);
-    flatListRef.scrollToIndex({
-      animated: true,
-      index: value,
-    });
+    // iOS fires onPageSelected even with no page: scrollToIndex on an empty
+    // (or shorter) list throws "scrollToIndex out of range".
+    if (value >= 0 && value < images.length) {
+      flatListRef.current?.scrollToIndex({
+        animated: true,
+        index: value,
+      });
+    }
   };
 
   /**
@@ -45,7 +50,7 @@ export default function PreviewImage({navigation, route}) {
     if (touched === indexSelected) {
       return;
     }
-    swiperRef?.setPage(touched);
+    swiperRef.current?.setPage(touched);
   };
 
   return (
@@ -67,9 +72,7 @@ export default function PreviewImage({navigation, route}) {
       />
       <View style={{flex: 1}}>
         <PagerView
-          ref={ref => {
-            swiperRef = ref;
-          }}
+          ref={swiperRef}
           style={{flex: 1}}
           initialPage={0}
           onPageSelected={e => onSelect(e.nativeEvent.position)}>
@@ -101,13 +104,14 @@ export default function PreviewImage({navigation, route}) {
           </Text>
         </View>
         <FlatList
-          ref={ref => {
-            flatListRef = ref;
-          }}
+          ref={flatListRef}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={images}
-          keyExtractor={(item, index) => item.full}
+          keyExtractor={(item, index) => `${index}-${item.full}`}
+          // Thumbnails are fixed-size (70 + 20 margin): lets scrollToIndex
+          // work for items not rendered yet.
+          getItemLayout={(_, index) => ({length: 90, offset: 90 * index, index})}
           renderItem={({item, index}) => (
             <TouchableOpacity
               onPress={() => {
