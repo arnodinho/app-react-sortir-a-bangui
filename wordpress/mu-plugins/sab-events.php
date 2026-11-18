@@ -3,7 +3,7 @@
  * Plugin Name: Sortir à Bangui – Agenda (événements)
  * Description: Type de contenu « sab_event » + API REST sab/v1/events utilisée par l'onglet
  *              Agenda de l'application mobile (liste, détail, proposition d'un événement).
- * Version:     0.2.2
+ * Version:     0.2.3
  *
  * Installation : copier ce fichier dans wp-content/mu-plugins/ (chargé automatiquement).
  *
@@ -163,11 +163,16 @@ function sab_event_render_metabox(WP_Post $post)
         'sab_event_phone'     => 'Téléphone',
         'sab_event_website'   => 'Site web / billetterie',
         'sab_event_gallery'   => 'Galerie (ids des médias, séparés par des virgules)',
-        'sab_event_place_id'  => 'Place associée (id Listar)',
+        'sab_event_place_id'  => 'Place associée',
     ];
     echo '<table class="form-table">';
     foreach ($labels as $key => $label) {
         $value = get_post_meta($post->ID, $key, true);
+        if ($key === 'sab_event_place_id') {
+            printf('<tr><th><label for="%1$s">%2$s</label></th><td>%3$s</td></tr>',
+                esc_attr($key), esc_html($label), sab_event_place_select($key, (int) $value));
+            continue;
+        }
         $type = 'text';
         if (in_array($key, ['sab_event_start', 'sab_event_end'], true)) {
             // Sélecteur date + heure natif du navigateur ; il envoie « AAAA-MM-JJTHH:MM »,
@@ -188,6 +193,34 @@ function sab_event_render_metabox(WP_Post $post)
         . '<a href="#" id="sab-event-map-clear">Effacer la position</a></p>'
         . '</td></tr>';
     echo '</table>';
+}
+
+/** Liste déroulante des places Listar (publiées, plus la place déjà associée quel que soit son statut). */
+function sab_event_place_select($name, $selected)
+{
+    $places = get_posts([
+        'post_type'      => 'listar',
+        'post_status'    => 'publish',
+        'orderby'        => 'title',
+        'order'          => 'ASC',
+        'posts_per_page' => -1,
+        'no_found_rows'  => true,
+    ]);
+    $ids = wp_list_pluck($places, 'ID');
+    if ($selected && !in_array($selected, $ids, true) && ($current = get_post($selected)) && $current->post_type === 'listar') {
+        array_unshift($places, $current);
+    }
+    $html = sprintf('<select id="%1$s" name="%1$s" style="max-width:100%%;min-width:25em">', esc_attr($name));
+    $html .= '<option value="">— Aucune —</option>';
+    foreach ($places as $place) {
+        $title = $place->post_title !== '' ? $place->post_title : '(sans titre)';
+        if ($place->post_status !== 'publish') {
+            $title .= ' (' . $place->post_status . ')';
+        }
+        $html .= sprintf('<option value="%d"%s>%s</option>',
+            $place->ID, selected($selected, $place->ID, false), esc_html($title));
+    }
+    return $html . '</select>';
 }
 
 add_action('save_post_' . SAB_EVENT_POST_TYPE, function ($post_id) {
