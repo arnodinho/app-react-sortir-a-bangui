@@ -6,6 +6,11 @@ require Pod::Executable.execute_command('node', ['-p',
   )', __dir__]).strip
 
 platform :ios, min_ios_version_supported
+
+# Firebase Analytics without the IDFA (no AdSupport framework): the app shows
+# no ads, and collecting the IDFA would require the App Tracking Transparency
+# prompt. Must be set before the pods are declared.
+$RNFirebaseAnalyticsWithoutAdIdSupport = true
 prepare_react_native_project!
 
 # @react-native-firebase resolves Firebase via Swift Package Manager, whose

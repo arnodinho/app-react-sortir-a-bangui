@@ -33,6 +33,10 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Sortir à Bangui utilise l'appareil photo pour prendre votre photo de profil ou les photos d'un établissement que vous ajoutez.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Sortir à Bangui accède à vos photos pour choisir votre photo de profil ou les photos d'un établissement que vous ajoutez.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Do you want share your location?</string>
 	<key>RCTNewArchEnabled</key>

@@ -19,7 +19,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     if FirebaseApp.app() == nil {
       FirebaseApp.configure()
     }
-    GMSServices.provideAPIKey("AIzaSyDvaS7W8iRIZTGJ6v5yePMWF4B2sCEVWqg")
+    GMSServices.provideAPIKey("AIzaSyBTEuze5QlnyqRKjzXNoRUYJ2ToVqQN1nQ")
+    // The API's responses are never meant to be cached, but NSURLSession caches
+    // them anyway — including 301 redirects, which it then replays without
+    // contacting the server. A server misconfiguration once answered every GET
+    // with a self-redirecting 301: affected installs kept looping (home screen
+    // stuck loading) long after the server was fixed. Start every launch with an
+    // empty HTTP cache. Images are unaffected (SDWebImage has its own cache).
+    URLCache.shared.removeAllCachedResponses()
     return true
   }
 }
