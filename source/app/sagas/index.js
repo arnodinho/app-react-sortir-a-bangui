@@ -6,6 +6,7 @@ import homeSagas from './home';
 import productSagas from './product';
 import listSagas from './list';
 import searchSagas from './search';
+import eventSagas from './event';
 
 export default function* rootSaga() {
   yield all([
@@ -16,5 +17,6 @@ export default function* rootSaga() {
     productSagas(),
     listSagas(),
     searchSagas(),
+    eventSagas(),
   ]);
 }

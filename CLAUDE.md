@@ -26,7 +26,16 @@ WordPress-backed listing/booking app, based on the "Listar" PassionUI template, 
   `mu-plugins/sab-password-policy.php` enforces the password rule (≥ 8 chars, one uppercase, one
   digit) server-side on `listar/v1/auth/register`, `wp/v2/users/me` and the WordPress reset/profile
   forms; the app mirrors it in `app/utils/password.js` (+ live checklist `components/PasswordRules`).
-  Keep both in sync. Kadence Security's own password requirements (strength, HIBP) are limited to
+  Keep both in sync. `mu-plugins/sab-events.php` is the Agenda: custom post type `sab_event`
+  (independent of Listar places, menu "Agenda" in wp-admin) + `sab/v1/events` (list with
+  `scope=upcoming|past`, detail `/events/{id}`, authenticated POST creates one, **published immediately** — no moderation by design, admin is
+  e-mailed; max 5/user/24h).
+  Dates are stored as site-local wall-clock `Y-m-d H:i:s`; the app parses them as wall-clock too
+  (`models/event.js`), never through UTC. `mu-plugins/sab-popular.php` adds `data.popular` to
+  `listar/v1/home/init` (via `rest_post_dispatch`, Listar untouched): top 5 places by interactions
+  = approved comments (`posts.comment_count`) + favorites (usermeta `_like_post`), topped up with
+  the most recent places. Views aren't tracked by Listar. The `rating_count` post meta is NOT a
+  reliable comment count (stale on some places, e.g. 8 with no comment left). Kadence Security's own password requirements (strength, HIBP) are limited to
   the Administrators + Editors user groups (app users are `author`). Gotcha: for these requirements
   Kadence ignores the "enabled" checkbox — a requirement is active as soon as its user-group list
   is non-empty. When Kadence does force a change, the token endpoint returns its HTML wp-login.php
@@ -243,6 +252,11 @@ things that fell out of that migration and aren't obvious from reading the code 
   offset 0) for short forms; for long forms (AddPlace, ProfileEdit) `KeyboardAwareScrollView` +
   footer in `KeyboardStickyView`, with `bottomOffset` ≈ footer height — never nest
   KeyboardAwareScrollView inside a KeyboardAvoidingView (double compensation hides the field).
+- **Local native module `modules/sab-calendar`** (installed as `"sab-calendar": "file:modules/sab-calendar"`,
+  autolinked, TurboModule with codegen spec `src/NativeSabCalendar.ts`): "Ajouter à mon agenda" in
+  EventDetail. iOS presents `EKEventEditViewController` (no permission needed on iOS 17+, asks on
+  15/16 — hence `NSCalendars*UsageDescription` in Info.plist); Android fires `ACTION_INSERT` on
+  `CalendarContract.Events` (no permission). After changing its native code: `pod install` + rebuild.
 - **Signing continuity**: the same Play Store signing key (`android/sab-keystore`) and the same
   Firebase configs (`google-services.json`, `GoogleService-Info.plist`) carried over unchanged —
   this is still the same shipped app (`com.ayanga.sortirabangui`), not a new one.

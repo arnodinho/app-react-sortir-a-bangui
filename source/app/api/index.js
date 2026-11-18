@@ -28,6 +28,8 @@ const endPoints = {
   contact: 'index.php/wp-json/sab/v1/contact',
   // Custom endpoint, served by wordpress/mu-plugins/sab-account-deletion.php.
   deleteAccount: 'index.php/wp-json/sab/v1/account/delete',
+  // Agenda, served by wordpress/mu-plugins/sab-events.php.
+  events: 'index.php/wp-json/sab/v1/events',
 };
 
 export const fetchLogin = params => {
@@ -180,4 +182,26 @@ export const getListProduct = params => {
 
 export const getListArea = params => {
   return network.get(endPoints.area, {params});
+};
+
+/**
+ * Agenda. params: {page, per_page, scope: 'upcoming'|'past', s}.
+ * Resolves to {success, data: [event], pagination}.
+ */
+export const getEvents = params => {
+  return network.get(endPoints.events, {params});
+};
+
+export const getEventDetail = id => {
+  return network.get(`${endPoints.events}/${id}`, {});
+};
+
+/**
+ * Create an event: published immediately, no moderation (admin gets an
+ * e-mail and can unpublish it in wp-admin).
+ * params: {title, content, start, end, venue, address, latitude, longitude,
+ * price, phone, website, gallery: comma-separated wp/v2/media ids}.
+ */
+export const createEvent = params => {
+  return network.post(endPoints.events, {params});
 };

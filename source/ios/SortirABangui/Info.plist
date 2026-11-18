@@ -33,6 +33,10 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Sortir à Bangui ajoute à votre calendrier les événements de l'agenda que vous choisissez.</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>Sortir à Bangui ajoute à votre calendrier les événements de l'agenda que vous choisissez.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Sortir à Bangui utilise l'appareil photo pour prendre votre photo de profil ou les photos d'un établissement que vous ajoutez.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

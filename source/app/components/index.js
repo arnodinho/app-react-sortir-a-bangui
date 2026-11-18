@@ -23,8 +23,10 @@ import ProfileDescription from './ProfileDescription';
 import RangeSlider from './RangeSlider';
 import PaginationDots from './PaginationDots';
 import PasswordRules from './PasswordRules';
+import EventCard from './EventCard';
 
 export {
+  EventCard,
   PaginationDots,
   PasswordRules,
   TextInput,

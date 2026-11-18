@@ -1,6 +1,6 @@
 {
   "name": "sortirabangui",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -13,6 +13,7 @@
   "dependencies": {
     "@react-native-assets/slider": "^11.0.13",
     "@react-native-async-storage/async-storage": "^3.1.1",
+    "@react-native-community/datetimepicker": "9.2.2",
     "@react-native-firebase/analytics": "^26.4.2",
     "@react-native-firebase/app": "^26.4.2",
     "@react-native-firebase/messaging": "^26.4.2",
@@ -51,6 +52,7 @@
     "redux-persist": "^6.0.0",
     "redux-saga": "^1.5.1",
     "rn-placeholder": "^3.0.3",
+    "sab-calendar": "file:modules/sab-calendar",
     "url": "^0.11.4"
   },
   "devDependencies": {

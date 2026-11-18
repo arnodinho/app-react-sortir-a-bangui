@@ -11,6 +11,7 @@ import FilterModel from './filter';
 import SortModel from './sort';
 import SettingModel from './setting';
 import NotificationModel from './notification';
+import EventModel from './event';
 
 export {
   UserModel,
@@ -26,4 +27,5 @@ export {
   SortModel,
   SettingModel,
   NotificationModel,
+  EventModel,
 };

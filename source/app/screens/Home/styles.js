@@ -49,6 +49,11 @@ export default StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 10,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   promotionBanner: {
     height: Utils.scaleWithPixel(100),
     width: '100%',

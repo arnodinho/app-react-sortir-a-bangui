@@ -5,6 +5,7 @@ import * as wishListActions from './wishlist';
 import * as productActions from './product';
 import * as listActions from './list';
 import * as searchActions from './search';
+import * as eventActions from './event';
 
 export {
   authActions,
@@ -14,4 +15,5 @@ export {
   productActions,
   listActions,
   searchActions,
+  eventActions,
 };

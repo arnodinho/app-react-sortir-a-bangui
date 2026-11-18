@@ -16,14 +16,12 @@ function* fetchHome(action) {
         locations: response.data?.locations?.map?.(item => {
           return new CategoryModel(item);
         }),
-        // The backend's home/init no longer returns `popular`; fall back to
-        // the recent places ranked by rating so the section isn't stuck on
-        // its loading placeholder.
+        // `popular` is added to home/init by wordpress/mu-plugins/sab-popular.php:
+        // most interactions (reviews + favorites), topped up with the most
+        // recent places. Fall back to the recent places if it's missing, so
+        // the section isn't stuck on its loading placeholder.
         popular: (
-          response.data?.popular ??
-          [...(response.data?.recent_posts ?? [])].sort(
-            (a, b) => (b?.rating_avg ?? 0) - (a?.rating_avg ?? 0),
-          )
+          response.data?.popular ?? response.data?.recent_posts ?? []
         ).map?.(item => {
           return new ProductModel(item);
         }),
