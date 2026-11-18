@@ -3,7 +3,7 @@
  * Plugin Name: Sortir à Bangui – Agenda (événements)
  * Description: Type de contenu « sab_event » + API REST sab/v1/events utilisée par l'onglet
  *              Agenda de l'application mobile (liste, détail, proposition d'un événement).
- * Version:     0.2.0
+ * Version:     0.2.1
  *
  * Installation : copier ce fichier dans wp-content/mu-plugins/ (chargé automatiquement).
  *
@@ -78,8 +78,8 @@ function sab_event_render_metabox(WP_Post $post)
 {
     wp_nonce_field('sab_event_save', 'sab_event_nonce');
     $labels = [
-        'sab_event_start'     => 'Début (AAAA-MM-JJ HH:MM) *',
-        'sab_event_end'       => 'Fin (AAAA-MM-JJ HH:MM)',
+        'sab_event_start'     => 'Début *',
+        'sab_event_end'       => 'Fin',
         'sab_event_venue'     => 'Lieu',
         'sab_event_address'   => 'Adresse',
         'sab_event_latitude'  => 'Latitude',
@@ -93,12 +93,17 @@ function sab_event_render_metabox(WP_Post $post)
     echo '<table class="form-table">';
     foreach ($labels as $key => $label) {
         $value = get_post_meta($post->ID, $key, true);
-        if (in_array($key, ['sab_event_start', 'sab_event_end'], true) && $value) {
-            $value = substr($value, 0, 16);
+        $type = 'text';
+        if (in_array($key, ['sab_event_start', 'sab_event_end'], true)) {
+            // Sélecteur date + heure natif du navigateur ; il envoie « AAAA-MM-JJTHH:MM »,
+            // que sab_event_parse_datetime() accepte déjà.
+            $type  = 'datetime-local';
+            $value = $value ? str_replace(' ', 'T', substr($value, 0, 16)) : '';
         }
         printf(
-            '<tr><th><label for="%1$s">%2$s</label></th><td><input type="text" class="regular-text" id="%1$s" name="%1$s" value="%3$s"></td></tr>',
-            esc_attr($key), esc_html($label), esc_attr($value)
+            '<tr><th><label for="%1$s">%2$s</label></th><td><input type="%4$s" class="regular-text" id="%1$s" name="%1$s" value="%3$s"%5$s></td></tr>',
+            esc_attr($key), esc_html($label), esc_attr($value), esc_attr($type),
+            $key === 'sab_event_start' ? ' required' : ''
         );
     }
     echo '</table>';
