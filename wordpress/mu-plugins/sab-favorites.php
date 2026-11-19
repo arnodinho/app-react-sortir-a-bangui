@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Sortir à Bangui – Favoris
  * Description: Favoris des utilisateurs de l'app (sab/v1/favorites), indépendants de la licence Listar.
- * Version:     1.0.0
+ * Version:     1.1.0
  *
  * Installation : copier ce fichier dans wp-content/mu-plugins/ (chargé automatiquement).
  *
@@ -18,6 +18,11 @@
  *   POST sab/v1/favorites/add      post_id            → {success, message}
  *   POST sab/v1/favorites/remove   post_id            → {success, message}
  *   POST sab/v1/favorites/reset                       → {success, message}
+ *
+ * Journal : chaque retrait/vidage est écrit dans le log PHP (error_log), préfixe
+ * « [sab-favorites] », avec l'id utilisateur, la route et les places concernées
+ * (pas d'IP ni de nom). Couvre aussi listar/v1/wishlist/remove|reset, encore
+ * appelées par les versions ≤ 2.1.0 de l'app.
  */
 
 if (!defined('ABSPATH')) {
@@ -66,6 +71,29 @@ add_action('rest_api_init', function () {
         'permission_callback' => $auth,
     ]);
 });
+
+/** Une ligne dans le log PHP pour chaque retrait/vidage de favoris. */
+function sab_favorites_log($action, $route, array $post_ids)
+{
+    error_log(sprintf(
+        '[sab-favorites] %s user=%d route=%s posts=%s',
+        $action,
+        get_current_user_id(),
+        $route,
+        $post_ids ? implode(',', $post_ids) : '-'
+    ));
+}
+
+// Anciennes versions de l'app : routes Listar (non modifiées), journalisées avant exécution.
+add_filter('rest_pre_dispatch', function ($result, $server, $request) {
+    $route = $request->get_route();
+    if ($route === '/listar/v1/wishlist/remove') {
+        sab_favorites_log('remove', $route, [(int) $request['post_id']]);
+    } elseif ($route === '/listar/v1/wishlist/reset') {
+        sab_favorites_log('reset', $route, sab_favorites_ids(get_current_user_id()));
+    }
+    return $result;
+}, 10, 3);
 
 /** Ids des places en favori de l'utilisateur (entiers, sans doublon). */
 function sab_favorites_ids($user_id)
@@ -140,6 +168,7 @@ function sab_favorites_remove(WP_REST_Request $request)
     $post_id = (int) $request['post_id'];
     // Pas de contrôle du statut : on doit pouvoir retirer une place dépubliée.
     if (sab_favorites_has($user_id, $post_id)) {
+        sab_favorites_log('remove', $request->get_route(), [$post_id]);
         delete_user_meta($user_id, SAB_FAVORITES_META, $post_id);
         sab_favorites_bump_count($post_id, -1);
     }
@@ -149,6 +178,7 @@ function sab_favorites_remove(WP_REST_Request $request)
 function sab_favorites_reset(WP_REST_Request $request)
 {
     $user_id = get_current_user_id();
+    sab_favorites_log('reset', $request->get_route(), sab_favorites_ids($user_id));
     foreach (sab_favorites_ids($user_id) as $post_id) {
         sab_favorites_bump_count($post_id, -1);
     }

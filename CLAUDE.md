@@ -35,8 +35,10 @@ WordPress-backed listing/booking app, based on the "Listar" PassionUI template, 
   `/reset`): Listar's `wishlist/save` requires a Pro license we don't have (HTTP 400 "not
   available in free version"), so favorites are reimplemented on the **same storage** (usermeta
   `_like_post` + post meta `_wishlist_count`) — Listar's `wishlist` flag on places and
-  sab-popular.php keep working. The Listar plugin itself won't be updated anymore (too many local
-  changes). `mu-plugins/sab-popular.php` adds `data.popular` to
+  sab-popular.php keep working. Every removal/reset (ours and Listar's `wishlist/remove|reset`,
+  still used by app ≤ 2.1.0) is logged to the PHP error log as `[sab-favorites] … user=<id>` —
+  grep it when a user's favorites "disappear". The Listar plugin itself won't be updated anymore
+  (too many local changes). `mu-plugins/sab-popular.php` adds `data.popular` to
   `listar/v1/home/init` (via `rest_post_dispatch`, Listar untouched): top 5 places by interactions
   = approved comments (`posts.comment_count`) + favorites (usermeta `_like_post`), topped up with
   the most recent places. Views aren't tracked by Listar. The `rating_count` post meta is NOT a

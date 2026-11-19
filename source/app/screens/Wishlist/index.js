@@ -5,6 +5,7 @@ import {
   View,
   ActivityIndicator,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {BaseStyle, useTheme} from '@config';
 import {Header, SafeAreaView, ListItem, Text, Icon} from '@components';
@@ -69,6 +70,22 @@ export default function Wishlist({navigation}) {
         setDeleting(false);
       }),
     );
+  };
+
+  /** The header trash empties the whole list: ask first (it used to act on a single tap). */
+  const onReset = () => {
+    if (!wishlist.list?.length || deleting) {
+      return;
+    }
+    Alert.alert({
+      type: 'warning',
+      title: t('wishlist_reset_title'),
+      message: t('wishlist_reset_message'),
+      action: [
+        {text: t('cancel'), onPress: () => {}},
+        {text: t('wishlist_reset_confirm'), onPress: () => onDelete()},
+      ],
+    });
   };
 
   /**
@@ -226,7 +243,7 @@ export default function Wishlist({navigation}) {
           }
           return <Icon name="trash-alt" size={16} color={colors.text} />;
         }}
-        onPressRight={() => onDelete()}
+        onPressRight={onReset}
       />
       {renderModal()}
       {renderContent()}
