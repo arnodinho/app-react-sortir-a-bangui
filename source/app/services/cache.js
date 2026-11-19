@@ -67,6 +67,21 @@ export async function clearCache(predicate) {
   } catch (e) {}
 }
 
+/** Cache key of a place detail (ids normalized: the API takes "12" or 12). */
+export const placeKey = id => cacheKey('place/view', {id: String(id)});
+
+/**
+ * Evicts one place detail (its favorite flag or rating changed), or every
+ * place detail when `id` is omitted (e.g. wishlist reset). Never throws.
+ */
+export function evictPlace(id) {
+  const suffix =
+    id == null ? null : `|place/view|${JSON.stringify({id: String(id)})}`;
+  return clearCache(key =>
+    suffix ? key.endsWith(suffix) : key.includes('|place/view|'),
+  );
+}
+
 /** Drops entries nobody will read again (older than any TTL). Never throws. */
 export async function pruneCache() {
   try {

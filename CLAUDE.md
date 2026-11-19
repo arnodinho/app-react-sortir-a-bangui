@@ -242,9 +242,10 @@ things that fell out of that migration and aren't obvious from reading the code 
   the response changed — so a saga callback may fire **twice** (`fromCache: true`, then network).
   Raw JSON lives in its own AsyncStorage database `sab-api-cache` (not redux-persist, whose
   rehydration would strip the model classes); keys = user id | language | endpoint | params.
-  Wired so far: `home/init` (24 h), first page of `sab/v1/events` + event detail (6 h). `force`
-  bypasses the read (pull-to-refresh); creating an event evicts the events entries; 404/410 evicts
-  the entry; `LOGOUT` clears everything; entries > 7 days are pruned at startup. Corollary: token
+  Wired so far: `home/init` (24 h), first page of `sab/v1/events` + event detail (6 h), place
+  detail `place/view` (7 d). `force` bypasses the read (pull-to-refresh, reload after a review);
+  creating an event evicts the events entries; a favorite change or a review evicts that place
+  (`evictPlace`, the detail carries the per-user favorite flag); 404/410 evicts the entry; `LOGOUT` clears everything; entries > 7 days are pruned at startup. Corollary: token
   validation at launch (`onValid` in `sagas/auth.js`) only signs out on an actual server answer —
   a network error used to log the user out (and would now also wipe the cache).
 - **Analytics** (`@react-native-firebase/analytics`): all calls go through `app/services/analytics.js`

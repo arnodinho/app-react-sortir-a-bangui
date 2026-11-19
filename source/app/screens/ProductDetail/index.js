@@ -67,11 +67,15 @@ export default function ProductDetail({navigation, route}) {
    */
   const loadData = () => {
     dispatch(
-      productActions.onLoadProduct({id}, item => {
-        setLoading(false);
-        setProduct(item);
-        setLike(item.favorite);
-      }),
+      productActions.onLoadProduct(
+        {id},
+        item => {
+          setLoading(false);
+          setProduct(item);
+          setLike(item.favorite);
+        },
+        {force: true},
+      ),
     );
   };
 
