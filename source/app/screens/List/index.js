@@ -78,12 +78,17 @@ export default function List({navigation, route}) {
    * on Load data
    *
    */
-  const loadData = filter => {
+  const loadData = (filter, force = false) => {
     dispatch(
-      listActions.onLoadList(filter, null, () => {
-        setLoading(false);
-        setRefreshing(false);
-      }),
+      listActions.onLoadList(
+        filter,
+        null,
+        () => {
+          setLoading(false);
+          setRefreshing(false);
+        },
+        {force},
+      ),
     );
   };
 
@@ -111,7 +116,8 @@ export default function List({navigation, route}) {
    */
   const onRefresh = () => {
     setRefreshing(true);
-    loadData();
+    // Keep the current category/filter (it used to reload every place).
+    loadData(filter, true);
   };
 
   /**

@@ -31,7 +31,14 @@ WordPress-backed listing/booking app, based on the "Listar" PassionUI template, 
   `scope=upcoming|past`, detail `/events/{id}`, authenticated POST creates one, **published immediately** — no moderation by design, admin is
   e-mailed; max 5/user/24h).
   Dates are stored as site-local wall-clock `Y-m-d H:i:s`; the app parses them as wall-clock too
-  (`models/event.js`), never through UTC. `mu-plugins/sab-popular.php` adds `data.popular` to
+  (`models/event.js`), never through UTC. `mu-plugins/sab-favorites.php` = the app's favorites (`sab/v1/favorites`, `/add`, `/remove`,
+  `/reset`): Listar's `wishlist/save` requires a Pro license we don't have (HTTP 400 "not
+  available in free version"), so favorites are reimplemented on the **same storage** (usermeta
+  `_like_post` + post meta `_wishlist_count`) — Listar's `wishlist` flag on places and
+  sab-popular.php keep working. Every removal/reset (ours and Listar's `wishlist/remove|reset`,
+  still used by app ≤ 2.1.0) is logged to the PHP error log as `[sab-favorites] … user=<id>` —
+  grep it when a user's favorites "disappear". The Listar plugin itself won't be updated anymore
+  (too many local changes). `mu-plugins/sab-popular.php` adds `data.popular` to
   `listar/v1/home/init` (via `rest_post_dispatch`, Listar untouched): top 5 places by interactions
   = approved comments (`posts.comment_count`) + favorites (usermeta `_like_post`), topped up with
   the most recent places. Views aren't tracked by Listar. The `rating_count` post meta is NOT a
@@ -74,7 +81,8 @@ npm run lint                # eslint .
 `--legacy-peer-deps` works around a reproducible npm/arborist crash (`TypeError: Cannot read
 properties of null (reading 'children')`) hit on a clean install of this dependency tree with
 npm ≥11; it is not optional. `postinstall` runs `patch-package`, which reapplies the patches
-from `patches/` (`react-native-maps`, `react-native-pager-view`, `react-native-image-picker`)
+from `patches/` (`react-native-maps`, `react-native-pager-view`, `react-native-image-picker`,
+`react-native-modal` — its `InteractionManager` calls crash on RN 0.88, which removed that API)
 that are lost on every fresh
 `npm install`/`ci` — if you change one of those packages' version, regenerate the patch with
 `npx patch-package <pkg> --exclude "android/build"` (the exclude matters: without it the patch
@@ -237,6 +245,17 @@ things that fell out of that migration and aren't obvious from reading the code 
   ids), category + `featured_media` via `wp/v2/listar/{id}`, coordinates in a last best-effort
   `place/save` because the server lacks the `wp_listar_coordinates` table (coords are saved, then
   it errors with HTTP 400). New places are always `pending` (moderated in wp-admin).
+- **API response cache** (`app/services/cache.js`, stale-while-revalidate): `cachedRequest()` in a
+  saga hands the cached raw JSON to `onData` at once, then fetches and calls `onData` again only if
+  the response changed — so a saga callback may fire **twice** (`fromCache: true`, then network).
+  Raw JSON lives in its own AsyncStorage database `sab-api-cache` (not redux-persist, whose
+  rehydration would strip the model classes); keys = user id | language | endpoint | params.
+  Wired so far: `home/init` (24 h), first page of `sab/v1/events` + event detail (6 h), place
+  detail `place/view` (7 d), first page of `place/list` per filter (24 h), `category/list` (7 d). `force` bypasses the read (pull-to-refresh, reload after a review);
+  creating an event evicts the events entries; a favorite change or a review evicts that place
+  (`evictPlace`, the detail carries the per-user favorite flag); 404/410 evicts the entry; `LOGOUT` clears everything; entries > 7 days are pruned at startup. Corollary: token
+  validation at launch (`onValid` in `sagas/auth.js`) only signs out on an actual server answer —
+  a network error used to log the user out (and would now also wipe the cache).
 - **Analytics** (`@react-native-firebase/analytics`): all calls go through `app/services/analytics.js`
   (fire-and-forget, never throws). Sign-up funnel events: `add_place_click {signed_in}`,
   `add_place_login_prompt {action: shown|sign_in|later}`, `login`/`sign_up {method, source}` where

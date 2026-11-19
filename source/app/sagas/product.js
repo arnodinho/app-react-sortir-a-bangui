@@ -1,15 +1,32 @@
-import {all, takeEvery} from 'redux-saga/effects';
+import {all, call, takeEvery} from 'redux-saga/effects';
 import * as actionTypes from '@actions/actionTypes';
 import * as api from '@api';
 import {ProductModel, CommentModel, RatingModel, CategoryModel} from '@models';
+import {
+  cachedRequest,
+  cacheKey,
+  evictPlace,
+  placeKey,
+  HOUR,
+} from '@services/cache';
 
+/**
+ * Cached for 7 days: the callback may run twice, first with the cached place,
+ * then with the network one if it changed. `force` skips the cache.
+ */
 function* fetchProduct(action) {
   try {
-    const response = yield api.getProductDetail(action.params);
-    if (response.success) {
-      const product = new ProductModel(response.data);
-      action.callback?.(product);
-    }
+    yield* cachedRequest({
+      key: placeKey(action.params?.id),
+      maxAge: 7 * 24 * HOUR,
+      force: action.force,
+      request: () => api.getProductDetail(action.params),
+      onData: function* (response) {
+        if (response.success) {
+          action.callback?.(new ProductModel(response.data));
+        }
+      },
+    });
   } catch (error) {
    // console.log('fetchProduct', error);
     action.callback?.(error.response ?? error.message);
@@ -39,6 +56,8 @@ function* saveComment(action) {
       form.append(key, action.params[key]);
     }
     const response = yield api.saveReview(form);
+    // The place's rating and comment count changed (Feedback sends `post`).
+    yield call(evictPlace, action.params?.post);
     action.callback?.(response);
   } catch (error) {
     //console.log('saveComment', error);
@@ -46,15 +65,22 @@ function* saveComment(action) {
   }
 }
 
+/** Cached 7 days: the callback may run twice (cache, then network). */
 function* loadCategory(action) {
   try {
-    const response = yield api.getCategory(action.params);
-    if (response.success) {
-      const list = response.data?.map?.(item => {
-        return new CategoryModel(item);
-      });
-      action.callback?.(list);
-    }
+    yield* cachedRequest({
+      key: cacheKey('category/list', action.params),
+      maxAge: 7 * 24 * HOUR,
+      force: action.force,
+      request: () => api.getCategory(action.params),
+      onData: function* (response) {
+        if (response.success) {
+          action.callback?.(
+            response.data?.map?.(item => new CategoryModel(item)),
+          );
+        }
+      },
+    });
   } catch (error) {
    // console.log('getCategory', error);
     action.callback?.(error.response ?? error.message);

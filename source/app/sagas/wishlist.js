@@ -1,7 +1,8 @@
-import {all, put, takeEvery} from 'redux-saga/effects';
+import {all, call, put, takeEvery} from 'redux-saga/effects';
 import * as actionTypes from '@actions/actionTypes';
 import * as api from '@api';
 import {ProductModel, PaginationModel} from '@models';
+import {evictPlace} from '@services/cache';
 
 function* loadWishList(action) {
   try {
@@ -32,6 +33,8 @@ function* deleteWishList(action) {
     } else {
       response = yield api.resetWishList();
     }
+    // Cached place details carry the favorite flag.
+    yield call(evictPlace, action.params?.post_id);
     yield put({type: actionTypes.GET_WISHLIST});
     action.callback?.(response);
   } catch (error) {
@@ -53,11 +56,18 @@ function* saveWishList(action) {
       response = yield api.deleteWishList(form);
     }
     if (response.success) {
-      action.callback?.(response.success);
+      yield call(evictPlace, action.params?.post_id);
+      // Keep the Favoris tab in sync (it only reloaded on pull-to-refresh).
+      yield put({type: actionTypes.GET_WISHLIST});
     }
+    action.callback?.({success: !!response.success, message: response.message});
   } catch (error) {
-    //console.log('likeProduct', error);
-    action.callback?.(error.response ?? error.message);
+    // e.g. 400 "not available in free version" when the Listar license is
+    // inactive: the caller must not show the place as saved.
+    action.callback?.({
+      success: false,
+      message: error.response?.data?.message ?? error.message,
+    });
   }
 }
 

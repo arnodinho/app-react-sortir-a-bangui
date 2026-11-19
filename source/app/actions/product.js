@@ -1,10 +1,15 @@
 import * as actionTypes from './actionTypes';
 
-export const onLoadProduct = (params, callback = () => {}) => {
+/**
+ * Cached: the callback may run twice (cache, then network).
+ * options.force: bypass the cache (reload after a review).
+ */
+export const onLoadProduct = (params, callback = () => {}, {force} = {}) => {
   return {
     type: actionTypes.FETCH_PRODUCT_DETAIL,
     params,
     callback,
+    force,
   };
 };
 
@@ -24,11 +29,13 @@ export const onFeekBack = (params, callback = () => {}) => {
   };
 };
 
-export const onFetchCategory = (params, callback = () => {}) => {
+/** Cached: the callback may run twice. options.force: bypass the cache. */
+export const onFetchCategory = (params, callback = () => {}, {force} = {}) => {
   return {
     type: actionTypes.GET_CATEGORY,
     params,
     callback,
+    force,
   };
 };
 

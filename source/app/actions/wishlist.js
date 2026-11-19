@@ -16,6 +16,7 @@ export const onDelete = (params, callback = () => {}) => {
   };
 };
 
+/** callback({success, message}): add (like) or remove one favorite. */
 export const onSave = (params, like, callback = () => {}) => {
   return {
     type: actionTypes.ON_LIKE,

@@ -5,6 +5,7 @@ import {
   View,
   ActivityIndicator,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {BaseStyle, useTheme} from '@config';
 import {Header, SafeAreaView, ListItem, Text, Icon} from '@components';
@@ -12,7 +13,6 @@ import {wishlistSelect} from '@selectors';
 import {useDispatch, useSelector} from 'react-redux';
 import {useTranslation} from 'react-i18next';
 import {wishListActions} from '@actions';
-import Share from 'react-native-share';
 import Modal from 'react-native-modal';
 import styles from './styles';
 
@@ -72,26 +72,28 @@ export default function Wishlist({navigation}) {
     );
   };
 
+  /** The header trash empties the whole list: ask first (it used to act on a single tap). */
+  const onReset = () => {
+    if (!wishlist.list?.length || deleting) {
+      return;
+    }
+    Alert.alert({
+      type: 'warning',
+      title: t('wishlist_reset_title'),
+      message: t('wishlist_reset_message'),
+      action: [
+        {text: t('cancel'), onPress: () => {}},
+        {text: t('wishlist_reset_confirm'), onPress: () => onDelete()},
+      ],
+    });
+  };
+
   /**
    * update status wishlist
    * @param {*} item
    */
   const onUpdate = item => {
     dispatch(wishListActions.onUpdate(item));
-  };
-
-  /**
-   * Action for share
-   */
-  const onShare = async item => {
-    const shareOptions = {
-      title: 'Share item',
-      url: item.link,
-    };
-    try {
-      Share.open(shareOptions);
-    } catch (error) {}
-    setModalVisible(false);
   };
 
   /**
@@ -120,19 +122,6 @@ export default function Wishlist({navigation}) {
               setActionItem(null);
             }}>
             <Icon name="times" size={12} color={colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              onShare(actionItem);
-            }}
-            style={[
-              styles.contentActionModalBottom,
-              {borderBottomColor: colors.border, borderBottomWidth: 1},
-            ]}>
-            <Icon name="share" size={18} color={colors.text} />
-            <Text body2 semibold style={{marginLeft: 15}}>
-              {t('share')}
-            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.contentActionModalBottom]}
@@ -254,7 +243,7 @@ export default function Wishlist({navigation}) {
           }
           return <Icon name="trash-alt" size={16} color={colors.text} />;
         }}
-        onPressRight={() => onDelete()}
+        onPressRight={onReset}
       />
       {renderModal()}
       {renderContent()}

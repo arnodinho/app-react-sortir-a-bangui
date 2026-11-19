@@ -67,11 +67,15 @@ export default function ProductDetail({navigation, route}) {
    */
   const loadData = () => {
     dispatch(
-      productActions.onLoadProduct({id}, item => {
-        setLoading(false);
-        setProduct(item);
-        setLike(item.favorite);
-      }),
+      productActions.onLoadProduct(
+        {id},
+        item => {
+          setLoading(false);
+          setProduct(item);
+          setLike(item.favorite);
+        },
+        {force: true},
+      ),
     );
   };
 
@@ -79,29 +83,34 @@ export default function ProductDetail({navigation, route}) {
    * like action
    * @param {*} value
    */
-  const onLike = value => {
-    if (user) {
-      setLike(null);
-      dispatch(
-        wishListActions.onSave({post_id: id}, value, () => {
+  const saveLike = value => {
+    setLike(null);
+    dispatch(
+      wishListActions.onSave({post_id: id}, value, res => {
+        if (res?.success) {
           route.params?.onLike?.(value);
           setLike(value);
-        }),
-      );
+          return;
+        }
+        // Refused by the server: keep the previous state and say so (the
+        // server message is technical and in English).
+        setLike(!value);
+        Alert.alert({
+          type: 'warning',
+          title: t('wishlist'),
+          message: t(value ? 'wishlist_save_error' : 'wishlist_remove_error'),
+        });
+      }),
+    );
+  };
+
+  const onLike = value => {
+    if (user) {
+      saveLike(value);
     } else {
       navigation.navigate({
         name: 'SignIn',
-        params: {
-          success: () => {
-            setLike(null);
-            dispatch(
-              wishListActions.onSave({post_id: id}, value, () => {
-                route.params?.onLike?.(value);
-                setLike(value);
-              }),
-            );
-          },
-        },
+        params: {success: () => saveLike(value)},
       });
     }
   };
