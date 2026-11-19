@@ -47,7 +47,12 @@ function* onValid(action) {
     }
     action.callback?.(response);
   } catch (error) {
-    yield put({type: actionTypes.LOGOUT});
+    // Only an actual answer from the server (jwt-auth replies 403 for an
+    // invalid/expired token) signs out. No network at launch must not: the
+    // user would be logged out, and the cached API data wiped with it.
+    if (error.response) {
+      yield put({type: actionTypes.LOGOUT});
+    }
     action.callback?.(error.response ?? error.message);
   }
 }

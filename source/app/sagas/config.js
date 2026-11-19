@@ -1,16 +1,18 @@
-import {all, put, takeEvery, delay} from 'redux-saga/effects';
+import {all, call, fork, put, takeEvery, delay} from 'redux-saga/effects';
 import url from 'url';
 import * as actionTypes from '@actions/actionTypes';
 import * as api from '@api';
 import {SettingModel} from '@models';
 import {BaseSetting} from '@config';
 import DeviceInfo from 'react-native-device-info';
+import {clearCache, pruneCache} from '@services/cache';
 
 export function* onSetup(action) {
   const urlObject = url.parse(
     [BaseSetting.protocol, action.domain].join('://'),
   );
   yield put({type: actionTypes.SAVE_URL, url: urlObject});
+  yield fork(pruneCache);
   yield put({type: actionTypes.SYNC_DEVICE_INFO});
   yield delay(250);
   try {
@@ -55,6 +57,13 @@ function* syncDeviceInfo() {
   yield takeEvery(actionTypes.SYNC_DEVICE_INFO, onDeviceSync);
 }
 
+// Cached API responses (services/cache.js) may hold per-user data.
+function* watchLogout() {
+  yield takeEvery(actionTypes.LOGOUT, function* () {
+    yield call(clearCache);
+  });
+}
+
 export default function* configSagas() {
-  yield all([watchSetup(), syncDeviceInfo()]);
+  yield all([watchSetup(), syncDeviceInfo(), watchLogout()]);
 }

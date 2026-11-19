@@ -51,7 +51,7 @@ export default function Home({navigation}) {
   const [bannerIndex, setBannerIndex] = useState(0);
   const [events, setEvents] = useState(null);
 
-  // Next events for the Agenda section (not in Redux: always fetched fresh).
+  // Next events for the Agenda section (cached first page: may arrive twice).
   useEffect(() => {
     dispatch(
       eventActions.onLoadEvents({page: 1, per_page: 6}, res =>

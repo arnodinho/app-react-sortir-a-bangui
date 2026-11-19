@@ -1,11 +1,16 @@
 import * as actionTypes from './actionTypes';
 
-/** params: {page, per_page, scope: 'upcoming'|'past'} */
-export const onLoadEvents = (params, callback = () => {}) => {
+/**
+ * params: {page, per_page, scope: 'upcoming'|'past'}
+ * options.force: bypass the cache (pull-to-refresh).
+ * The first page is cached, so the callback may run twice (cache, then network).
+ */
+export const onLoadEvents = (params, callback = () => {}, {force} = {}) => {
   return {
     type: actionTypes.GET_EVENTS,
     params,
     callback,
+    force,
   };
 };
 

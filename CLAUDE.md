@@ -237,6 +237,16 @@ things that fell out of that migration and aren't obvious from reading the code 
   ids), category + `featured_media` via `wp/v2/listar/{id}`, coordinates in a last best-effort
   `place/save` because the server lacks the `wp_listar_coordinates` table (coords are saved, then
   it errors with HTTP 400). New places are always `pending` (moderated in wp-admin).
+- **API response cache** (`app/services/cache.js`, stale-while-revalidate): `cachedRequest()` in a
+  saga hands the cached raw JSON to `onData` at once, then fetches and calls `onData` again only if
+  the response changed — so a saga callback may fire **twice** (`fromCache: true`, then network).
+  Raw JSON lives in its own AsyncStorage database `sab-api-cache` (not redux-persist, whose
+  rehydration would strip the model classes); keys = user id | language | endpoint | params.
+  Wired so far: `home/init` (24 h), first page of `sab/v1/events` + event detail (6 h). `force`
+  bypasses the read (pull-to-refresh); creating an event evicts the events entries; 404/410 evicts
+  the entry; `LOGOUT` clears everything; entries > 7 days are pruned at startup. Corollary: token
+  validation at launch (`onValid` in `sagas/auth.js`) only signs out on an actual server answer —
+  a network error used to log the user out (and would now also wipe the cache).
 - **Analytics** (`@react-native-firebase/analytics`): all calls go through `app/services/analytics.js`
   (fire-and-forget, never throws). Sign-up funnel events: `add_place_click {signed_in}`,
   `add_place_login_prompt {action: shown|sign_in|later}`, `login`/`sign_up {method, source}` where

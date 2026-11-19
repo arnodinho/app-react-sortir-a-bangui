@@ -32,21 +32,27 @@ export default function EventList({navigation}) {
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  // Page 1 is cached: the callback runs first with the cached list, then
+  // again with the network one if it changed. `force` skips the cache.
   const load = useCallback(
-    (page = 1) =>
+    (page = 1, force = false) =>
       new Promise(resolve => {
         dispatch(
-          eventActions.onLoadEvents({page, per_page: PER_PAGE, scope}, res => {
-            if (res.success) {
-              setList(current =>
-                page === 1 ? res.list : [...(current ?? []), ...res.list],
-              );
-              setPagination(res.pagination);
-            } else if (page === 1) {
-              setList([]);
-            }
-            resolve();
-          }),
+          eventActions.onLoadEvents(
+            {page, per_page: PER_PAGE, scope},
+            res => {
+              if (res.success) {
+                setList(current =>
+                  page === 1 ? res.list : [...(current ?? []), ...res.list],
+                );
+                setPagination(res.pagination);
+              } else if (page === 1) {
+                setList(current => current ?? []);
+              }
+              resolve();
+            },
+            {force},
+          ),
         );
       }),
     [dispatch, scope],
@@ -59,7 +65,7 @@ export default function EventList({navigation}) {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await load(1);
+    await load(1, true);
     setRefreshing(false);
   };
 
