@@ -12,7 +12,6 @@ import {wishlistSelect} from '@selectors';
 import {useDispatch, useSelector} from 'react-redux';
 import {useTranslation} from 'react-i18next';
 import {wishListActions} from '@actions';
-import Share from 'react-native-share';
 import Modal from 'react-native-modal';
 import styles from './styles';
 
@@ -81,18 +80,6 @@ export default function Wishlist({navigation}) {
   };
 
   /**
-   * Action for share
-   */
-  const onShare = async item => {
-    setModalVisible(false);
-    try {
-      // Share.open rejects when the user dismisses the share sheet: it must be
-      // awaited, or that rejection surfaces as an unhandled promise.
-      await Share.open({title: item.title, url: item.link});
-    } catch (error) {}
-  };
-
-  /**
    * render UI Modal action
    * @returns
    */
@@ -118,19 +105,6 @@ export default function Wishlist({navigation}) {
               setActionItem(null);
             }}>
             <Icon name="times" size={12} color={colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              onShare(actionItem);
-            }}
-            style={[
-              styles.contentActionModalBottom,
-              {borderBottomColor: colors.border, borderBottomWidth: 1},
-            ]}>
-            <Icon name="share" size={18} color={colors.text} />
-            <Text body2 semibold style={{marginLeft: 15}}>
-              {t('share')}
-            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.contentActionModalBottom]}
