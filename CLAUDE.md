@@ -79,7 +79,8 @@ npm run lint                # eslint .
 `--legacy-peer-deps` works around a reproducible npm/arborist crash (`TypeError: Cannot read
 properties of null (reading 'children')`) hit on a clean install of this dependency tree with
 npm ≥11; it is not optional. `postinstall` runs `patch-package`, which reapplies the patches
-from `patches/` (`react-native-maps`, `react-native-pager-view`, `react-native-image-picker`)
+from `patches/` (`react-native-maps`, `react-native-pager-view`, `react-native-image-picker`,
+`react-native-modal` — its `InteractionManager` calls crash on RN 0.88, which removed that API)
 that are lost on every fresh
 `npm install`/`ci` — if you change one of those packages' version, regenerate the patch with
 `npx patch-package <pkg> --exclude "android/build"` (the exclude matters: without it the patch
