@@ -216,5 +216,21 @@
     "add_to_calendar_success":"L'événement a été ajouté à votre agenda.",
     "add_to_calendar_error":"Impossible d'ouvrir l'agenda de votre téléphone.",
     "add_to_calendar_permission":"Autorisez l'accès au calendrier dans Réglages > Sortir à Bangui pour ajouter l'événement.",
-    "login_invalid_credentials":"Identifiant ou mot de passe incorrect."
+    "login_invalid_credentials":"Identifiant ou mot de passe incorrect.",
+    "rate": "Note",
+    "mon": "Lundi",
+    "tue": "Mardi",
+    "wed": "Mercredi",
+    "thu": "Jeudi",
+    "fri": "Vendredi",
+    "sat": "Samedi",
+    "sun": "Dimanche",
+    "day_off": "Fermé",
+    "post_date_desc": "Les plus récents",
+    "post_date_asc": "Les plus anciens",
+    "comment_count_desc": "Les plus commentés",
+    "sort": "Trier",
+    "confirm_password_not_corrent": "Les mots de passe ne correspondent pas.",
+    "share": "Partager",
+    "remove": "Retirer"
 }

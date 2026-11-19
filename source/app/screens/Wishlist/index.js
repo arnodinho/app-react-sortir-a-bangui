@@ -84,14 +84,12 @@ export default function Wishlist({navigation}) {
    * Action for share
    */
   const onShare = async item => {
-    const shareOptions = {
-      title: 'Share item',
-      url: item.link,
-    };
-    try {
-      Share.open(shareOptions);
-    } catch (error) {}
     setModalVisible(false);
+    try {
+      // Share.open rejects when the user dismisses the share sheet: it must be
+      // awaited, or that rejection surfaces as an unhandled promise.
+      await Share.open({title: item.title, url: item.link});
+    } catch (error) {}
   };
 
   /**
