@@ -31,7 +31,12 @@ WordPress-backed listing/booking app, based on the "Listar" PassionUI template, 
   `scope=upcoming|past`, detail `/events/{id}`, authenticated POST creates one, **published immediately** — no moderation by design, admin is
   e-mailed; max 5/user/24h).
   Dates are stored as site-local wall-clock `Y-m-d H:i:s`; the app parses them as wall-clock too
-  (`models/event.js`), never through UTC. `mu-plugins/sab-popular.php` adds `data.popular` to
+  (`models/event.js`), never through UTC. `mu-plugins/sab-favorites.php` = the app's favorites (`sab/v1/favorites`, `/add`, `/remove`,
+  `/reset`): Listar's `wishlist/save` requires a Pro license we don't have (HTTP 400 "not
+  available in free version"), so favorites are reimplemented on the **same storage** (usermeta
+  `_like_post` + post meta `_wishlist_count`) — Listar's `wishlist` flag on places and
+  sab-popular.php keep working. The Listar plugin itself won't be updated anymore (too many local
+  changes). `mu-plugins/sab-popular.php` adds `data.popular` to
   `listar/v1/home/init` (via `rest_post_dispatch`, Listar untouched): top 5 places by interactions
   = approved comments (`posts.comment_count`) + favorites (usermeta `_like_post`), topped up with
   the most recent places. Views aren't tracked by Listar. The `rating_count` post meta is NOT a

@@ -57,6 +57,8 @@ function* saveWishList(action) {
     }
     if (response.success) {
       yield call(evictPlace, action.params?.post_id);
+      // Keep the Favoris tab in sync (it only reloaded on pull-to-refresh).
+      yield put({type: actionTypes.GET_WISHLIST});
     }
     action.callback?.({success: !!response.success, message: response.message});
   } catch (error) {
