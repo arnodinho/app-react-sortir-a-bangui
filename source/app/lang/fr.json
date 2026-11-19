@@ -130,6 +130,8 @@
     "join_now":"Adhérer maintenant",
     "home":"Accueil",
     "wishlist": "Mes favoris",
+    "wishlist_save_error": "Ce lieu n'a pas pu être ajouté à vos favoris. Réessayez plus tard.",
+    "wishlist_remove_error": "Ce lieu n'a pas pu être retiré de vos favoris. Réessayez plus tard.",
     "reminders":"Rappels",
     "default":"Défaut",
     "update_success":"Mise à jour effectuée",

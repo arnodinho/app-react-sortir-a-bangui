@@ -57,11 +57,15 @@ function* saveWishList(action) {
     }
     if (response.success) {
       yield call(evictPlace, action.params?.post_id);
-      action.callback?.(response.success);
     }
+    action.callback?.({success: !!response.success, message: response.message});
   } catch (error) {
-    //console.log('likeProduct', error);
-    action.callback?.(error.response ?? error.message);
+    // e.g. 400 "not available in free version" when the Listar license is
+    // inactive: the caller must not show the place as saved.
+    action.callback?.({
+      success: false,
+      message: error.response?.data?.message ?? error.message,
+    });
   }
 }
 

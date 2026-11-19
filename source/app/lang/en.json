@@ -128,6 +128,8 @@
   "join_now": "Join Now",
   "home": "Home",
   "wishlist": "Wishlist",
+  "wishlist_save_error": "This place could not be added to your wishlist. Please try again later.",
+  "wishlist_remove_error": "This place could not be removed from your wishlist. Please try again later.",
   "reminders": "Reminders",
   "default": "Default",
   "information": "Information",
