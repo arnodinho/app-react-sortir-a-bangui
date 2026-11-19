@@ -2,7 +2,13 @@ import {all, call, takeEvery} from 'redux-saga/effects';
 import * as actionTypes from '@actions/actionTypes';
 import * as api from '@api';
 import {ProductModel, CommentModel, RatingModel, CategoryModel} from '@models';
-import {cachedRequest, evictPlace, placeKey, HOUR} from '@services/cache';
+import {
+  cachedRequest,
+  cacheKey,
+  evictPlace,
+  placeKey,
+  HOUR,
+} from '@services/cache';
 
 /**
  * Cached for 7 days: the callback may run twice, first with the cached place,
@@ -59,15 +65,22 @@ function* saveComment(action) {
   }
 }
 
+/** Cached 7 days: the callback may run twice (cache, then network). */
 function* loadCategory(action) {
   try {
-    const response = yield api.getCategory(action.params);
-    if (response.success) {
-      const list = response.data?.map?.(item => {
-        return new CategoryModel(item);
-      });
-      action.callback?.(list);
-    }
+    yield* cachedRequest({
+      key: cacheKey('category/list', action.params),
+      maxAge: 7 * 24 * HOUR,
+      force: action.force,
+      request: () => api.getCategory(action.params),
+      onData: function* (response) {
+        if (response.success) {
+          action.callback?.(
+            response.data?.map?.(item => new CategoryModel(item)),
+          );
+        }
+      },
+    });
   } catch (error) {
    // console.log('getCategory', error);
     action.callback?.(error.response ?? error.message);

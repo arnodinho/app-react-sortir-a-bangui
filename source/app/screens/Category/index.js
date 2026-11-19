@@ -48,12 +48,16 @@ export default function Category({navigation}) {
    */
   const loadData = () => {
     dispatch(
-      productActions.onFetchCategory(null, data => {
-        setCategory(data);
-        setOrigin(data);
-        setLoading(false);
-        setRefreshing(false);
-      }),
+      productActions.onFetchCategory(
+        null,
+        data => {
+          setCategory(data);
+          setOrigin(data);
+          setLoading(false);
+          setRefreshing(false);
+        },
+        {force: true},
+      ),
     );
   };
   /**

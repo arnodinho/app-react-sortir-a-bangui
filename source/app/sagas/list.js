@@ -2,6 +2,7 @@ import {all, put, takeEvery} from 'redux-saga/effects';
 import * as actionTypes from '@actions/actionTypes';
 import * as api from '@api';
 import {ProductModel, PaginationModel} from '@models';
+import {cachedRequest, cacheKey, HOUR} from '@services/cache';
 
 function* loadList(action) {
   try {
@@ -34,19 +35,33 @@ function* loadList(action) {
       params['orderby'] = action.filter.sort.field;
       params['order'] = action.filter.sort.value;
     }
-    const response = yield api.getListProduct(params);
-    if (response.success) {
-      const list = response.data.map?.(item => {
-        return new ProductModel(item);
-      });
-      const pagination = new PaginationModel(response.pagination);
-      yield put({
-        type: actionTypes.SAVE_LIST,
-        list,
-        pagination,
-      });
+    const save = function* (response) {
+      if (response.success) {
+        const list = response.data.map?.(item => {
+          return new ProductModel(item);
+        });
+        const pagination = new PaginationModel(response.pagination);
+        yield put({
+          type: actionTypes.SAVE_LIST,
+          list,
+          pagination,
+        });
+      }
+      action.callback?.(response);
+    };
+    // Next pages always come from the network.
+    if (action.page > 1) {
+      yield* save(yield api.getListProduct(params));
+      return;
     }
-    action.callback?.(response);
+    // First page cached 24h: the callback may run twice (cache, then network).
+    yield* cachedRequest({
+      key: cacheKey('place/list', params),
+      maxAge: 24 * HOUR,
+      force: action.force,
+      request: () => api.getListProduct(params),
+      onData: save,
+    });
   } catch (error) {
    // console.log('loadList', error);
     action.callback?.(error.response ?? error.message);

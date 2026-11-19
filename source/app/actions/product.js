@@ -29,11 +29,13 @@ export const onFeekBack = (params, callback = () => {}) => {
   };
 };
 
-export const onFetchCategory = (params, callback = () => {}) => {
+/** Cached: the callback may run twice. options.force: bypass the cache. */
+export const onFetchCategory = (params, callback = () => {}, {force} = {}) => {
   return {
     type: actionTypes.GET_CATEGORY,
     params,
     callback,
+    force,
   };
 };
 

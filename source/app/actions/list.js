@@ -1,11 +1,16 @@
 import * as actionTypes from './actionTypes';
 
-export const onLoadList = (filter, page, callback = () => {}) => {
+/**
+ * The first page is cached: the callback may run twice (cache, then network).
+ * options.force: bypass the cache (pull-to-refresh).
+ */
+export const onLoadList = (filter, page, callback = () => {}, {force} = {}) => {
   return {
     type: actionTypes.LOAD_LIST,
     filter,
     page,
     callback,
+    force,
   };
 };
 
